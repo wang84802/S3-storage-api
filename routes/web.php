@@ -22,24 +22,9 @@ Route::post('/upload', 'UploadController@uploadSubmit');
 
 Route::get('create','StorageController@create');
 Route::post('create','StorageController@store');
+
+Route::get('download','StorageController@showS3');
+Route::post('download','StorageController@download');
 //Route::post('create','StorageController@imageupload');
 
-/*
-Route::post('create',function (Request $request){
-    $photos = $request->file('profile_image');
-    $paths  = [];
 
-    foreach ($photos as $photo) {
-        $extension = $photo->getClientOriginalExtension();
-        $filename  = 'profile-photo-' . time() . '.' . $extension;
-        $paths[]   = $photo->storeAs('profile_image', $filename);
-    }
-
-    dd($paths);
-});
-*/
-
-Route::get('list','StorageController@list');
-
-
-Route::resource('documents','DocumentController');

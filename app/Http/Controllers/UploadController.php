@@ -18,10 +18,10 @@ class UploadController extends Controller
     public function uploadSubmit(Request $request)
     {
         $input= $request->all();
-        //dd($input);
+
         $file = $input['photos'];
         $i = 0;
-        //dd($file);
+        dd($file);
         foreach ($request->photos as $photo) {
 
             $name = $file[$i]->getClientOriginalName();

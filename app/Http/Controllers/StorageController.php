@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Storage;
+use URL;
+use League\Flysystem\Util\ContentListingFormatter;
 
 class StorageController extends Controller
 {
@@ -58,15 +60,28 @@ class StorageController extends Controller
 
         }
     }
-    public function list()
+    public function showS3()
+    {
+        //return Storage::disk('s3')->allFiles();
+        return view('show_S3');
+
+    }
+    public function download(Request $request)
     {
         //$list = Storage::disk('s3')->files();
-        //$url = Storage::disk('s3')->url('456.txt');
+        $url = Storage::disk('s3')->url('456.txt');
         //return $list;
         //return $url;
-        //return Storage::disk('s3')->download('456.txt');
+
+
+        $file_name = $request->get('file_name');
+        //echo gettype($file_name);
+        return Storage::disk('s3')->download($file_name);
+
 
         //Storage::disk('s3')->makeDirectory('test');
+        //Storage::disk('s3')->makeDirectory($file_name);
+
         //Storage::disk('s3')->put('test/456.txt','test/456');
 
     }
