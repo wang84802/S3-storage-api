@@ -5,45 +5,19 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Storage;
 use URL;
+use DB;
 use League\Flysystem\Util\ContentListingFormatter;
 
 class StorageController extends Controller
 {
-	public function create()
+	public function create()//get create
 	{
-	    //Storage::disk('s3')->put('456.txt','456');
-
-	    //return "success";
-        //$contents = Storage::disk('s3')->get('456.txt');
-	    //print $contents;
-	    //return Storage::disk('s3')->download('456.txt');
-        //$url = Storage::disk('s3')->url('456.txt');
-        //return $url;
         return view('uploadimage');
 	}
-	public function imageupload(Request $request)
+
+    public function store(Request $request)//post create
     {
-        $files = $request->file('profile_image');
-        $paths  = [];
-
-        foreach($files as $file){
-            $extension = $file->getClientOriginalExtension();
-            $filename  = 'profile-photo-' . time() . '.' . $extension;
-            $paths[]   = $file->storeAs('profile_image', $filename);
-        }
-
-
-        dd($paths);
-        //foreach($files as $file){
-        //    echo $file;
-        //}
-    }
-    public function store(Request $request)
-    {
-
-
         if($request->hasFile('profile_image')) {
-
             $files = $request->file('profile_image');
             $path = [];
             foreach($files as $file){
@@ -53,34 +27,33 @@ class StorageController extends Controller
             $filenamewithextension = $request->file('profile_image')->getClientOriginalName();
 
             dd($filenamewithextension);
-
-            ///Storage::disk('s3')->put($filenamewithextension, fopen($request->file('profile_image'), 'r+'), 'public');
-
-            //return redirect('create')->with('message','File uploaded successfully.');
-
         }
     }
-    public function showS3()
+    public function showS3()//get download
     {
         //return Storage::disk('s3')->allFiles();
         return view('show_S3');
-
     }
-    public function download(Request $request)
+    public function download(Request $request)//post download
     {
-        //$list = Storage::disk('s3')->files();
-        $url = Storage::disk('s3')->url('456.txt');
-        //return $list;
-        //return $url;
+        /*check database has record or not
+        $IfExist = DB::table('products_photos')->where('filename','=',$request->file_name)->first();
+        if(!empty($IfExist)){
+            return $IfExist->filename;
+        }else{
+            return "file doesn't exist!";
+        }
+        */
 
-
-        $file_name = $request->get('file_name');
-        //echo gettype($file_name);
+        ///*download file
+        //$file_name = $request->input('data.filename'); //from post body
+        $file_name = $request->get('file_name');         //from input form
         return Storage::disk('s3')->download($file_name);
 
-
-        //Storage::disk('s3')->makeDirectory('test');
-        //Storage::disk('s3')->makeDirectory($file_name);
+        /*make folder
+        Storage::disk('s3')->makeDirectory('test');
+        Storage::disk('s3')->makeDirectory($file_name);
+        */
 
         //Storage::disk('s3')->put('test/456.txt','test/456');
 
