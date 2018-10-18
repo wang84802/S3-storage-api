@@ -42,8 +42,7 @@ class UploadController extends Controller
                 ->where('filename','=',$name)
                 ->get())
             {
-                DB::table('products_photos')
-                    ->where('filename','=',$name)->delete();
+                DB::table('products_photos')->where('filename','=',$name)->delete(); //要改成soft delete
             }
 
             //file put in S3

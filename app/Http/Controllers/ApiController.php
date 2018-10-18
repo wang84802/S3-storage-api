@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Validator;
 use Storage;
 use Illuminate\Http\Request;
+use GuzzleHttp\Client;
 
 class ApiController extends Controller
 {
@@ -16,13 +17,8 @@ class ApiController extends Controller
     }
     public function download(Request $request)//api_download
     {
-        /*testing area
-        //$file_name = 'hello.txt';
-        $file_url = Storage::disk('s3')->url('hello.txt');
-        return response()->download(storage_path('app/temp.txt'));
-        */
-        //$file_name = $request->get('file_name');
-        return Storage::disk('s3')->download('API.PNG');
+
+        $re = Storage::disk('s3')->download('API.PNG');
 
         //API of single file download
         /*
@@ -39,8 +35,32 @@ class ApiController extends Controller
     }
     public function upload(Request $request)//api_upload
     {
-        //API of multiple files upload
+        //API of multiple files upload (body with filename & filecontent)
         ///*
+        $name = $request->input('date');
+        $i = count($name)-1;
+        for($j = 0 ; $j <= $i ; $j ++ ) {
+            $filename[$j] = $name[$j]['filename'];
+
+            $filecontent[$j] = $name[$j]['filecontent'];
+
+            Storage::disk('s3')->put($filename[$j],base64_decode($filecontent[$j]));
+        }
+
+        //check records in S3
+        for ($k = 0 ; $k <= $i ; $k ++ ) {
+            $hasfile = Storage::disk('s3')->has($filename[$k]);
+            if ($hasfile) {
+                echo $filename[$k]." Upload Success!".'<br>';
+            } else {
+                echo $filename[$k]." Upload Failed!".'<br>';;
+            }
+        }
+        //*/
+
+
+        //API of multiple files upload
+        /*
         $input= $request->all();
         $file = $input['uploads'];
         $i=0;
@@ -49,9 +69,7 @@ class ApiController extends Controller
             foreach ($file as $files) {
                 $name = $file[$i]->getClientOriginalName();
 
-                Storage::disk('s3')->put($name,file_get_contents($file[$i]));
-                //return $base64_e = base64_encode($file[$i]);
-                //return $base64_d = base64_decode($base64_e);
+                //
 
                 $hasfile = Storage::disk('s3')->has($name); //check record in S3
                 if ($hasfile) {
@@ -63,7 +81,7 @@ class ApiController extends Controller
 
             }
         }
-        //*/
+        */
 
         //API of single file upload
         /*
