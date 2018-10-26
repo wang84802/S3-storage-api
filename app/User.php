@@ -8,6 +8,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class User extends Authenticatable
 {
     use Notifiable;
+    const ADMIN_TYPE = 'admin';
+    const DEFAULT_TYPE = 'default';
+
+    public function isAdmin()    {
+       return $this->type === self::ADMIN_TYPE;
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -15,7 +21,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password','api_token',
     ];
 
     /**
@@ -26,4 +32,11 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+    public function generateToken()
+    {
+        $this->api_token = str_random(60);
+        $this->save();
+
+        return $this->api_token;
+    }
 }
