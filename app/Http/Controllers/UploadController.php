@@ -34,10 +34,10 @@ class UploadController extends Controller
         $product = Product::create($request->all());
 
 
-
+        //getClientMimeType getClientSize
         foreach ($request->photos as $photo) {
             $name = $file[$i]->getClientOriginalName();
-
+            
             if($IfExist = DB::table('products_photos')
                 ->where('filename','=',$name)
                 ->get())

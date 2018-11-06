@@ -1,7 +1,8 @@
+<link href="{{ asset('css/app.css') }}" rel="stylesheet" />
 <div class="container">
-    @foreach ($Files as $file)
-        {{ $file->name }}
+    @foreach ($files as $file)
+        {{ $file->name }}.{{ $file->extension }}
+        {{ $file->size }}
     @endforeach
 </div>
-
-{{ $Files->appends(['sort' => 'votes'])->render() }}
+{{ $files->render('vendor.pagination.simple-bootstrap-4') }}

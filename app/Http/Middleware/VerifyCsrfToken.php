@@ -15,11 +15,11 @@ class VerifyCsrfToken extends Middleware
         'api_download',
         'api_upload',
         'download',
-        'download/response',
         'rename',
-        'only',
         'delete',
         'admintest',
         'search',
+        'orderby/filename',
+        'zip',
     ];
 }
