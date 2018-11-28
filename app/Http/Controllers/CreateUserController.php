@@ -22,6 +22,6 @@ class CreateUserController extends Controller
         ]);
 
         $query = DB::table('users')->where('name','=',$name); // Query DB
-        return $query->get();
+        return response()->json($query->get(),201);
     }
 }

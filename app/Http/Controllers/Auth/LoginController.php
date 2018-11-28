@@ -60,13 +60,20 @@ class LoginController extends Controller
     }
     public function logout(Request $request)
     {
-        $user = Auth::guard('api')->user();
+        $api = $request->header('Api-Token');
+        $user = User::where('api_token','=',$api)->get();
+
+        //$user = Auth::guard('api')->user();
+        if($user=='[]')
+            return response()->json(['response' => 'User does not exist!'], 404);
+        else
+            $user = $user[0];
         if($user) {
             $user->api_token = null;
             $user->save();
             return response()->json(['response' => $user->name.' logged out.'], 200);
         }else {
-            return response()->json(['response' => 'Api_token not found!.'], 404);
+            return response()->json(['response' => 'User does not exist!'], 404);
         }
 
     }

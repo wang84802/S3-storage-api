@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use App\User;
 
-class IsAdmin
+class IsUser
 {
     /**
      * Handle an incoming request.
@@ -17,16 +17,13 @@ class IsAdmin
     public function handle($request, Closure $next)
     {
         $api = $request->header('Api-Token');
-
+        if($api==NULL)
+            return response('Unauthenticated.', 401);
         $users = User::where('api_token','=',$api)->get();
         if($users=='[]') {
             return response('Unauthenticated.', 401);
-        } else if ($users[0]->type != 'admin'){
-            return response('Unauthorized.', 403);
-        }   else{
+        }else{
             return $next($request);
         }
-
     }
-
 }

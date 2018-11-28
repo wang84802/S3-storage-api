@@ -17,9 +17,12 @@ class VerifyCsrfToken extends Middleware
         'download',
         'rename',
         'delete',
-        'admintest',
+        'admin_create',
         'search',
-        'orderby/filename',
         'zip',
+        'restore',
+        'Job_upload',
+        'Job_download',
+        'test'
     ];
 }

@@ -12,34 +12,17 @@
 use Illuminate\Http\Request;
 use App\File;
 
-
 //use DB;
 
-Route::middleware('is_admin')->post('/admintest','CreateUserController@create');
+Route::middleware('is_admin')->post('/admin_create','CreateUserController@create');
 
 Route::get('/', function () {
     return view('welcome');
 });
-Route::post('zip','ApiController@zip');
+Route::post('zip','PostApiController@zip');
+Route::post('restore','PostApiController@restore');
+Route::get('show','PostApiController@show');
 
-/*
-Route::get('/',function(){
-    $files = File::orderBy('updated_at','asc')->paginate(1);
-    return view('welcome',compact('files'));
-});
-*/
+//API User
+Route::post('test','PostApiController@test');
 
-/*
-Route::get('/upload', 'UploadController@uploadForm')->name('uploadForm');
-Route::post('/upload', 'UploadController@uploadSubmit');
-Route::post('/flush','UploadController@flush');
-
-Route::get('create','StorageController@create');
-Route::post('create','StorageController@store');
-
-Route::get('download','StorageController@showS3')->name('showS3');
-
-Route::post('download', 'StorageController@download');
-
-Route::get('api_download','ApiController@form');
-*/

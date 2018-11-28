@@ -2,9 +2,13 @@
 
 namespace App;
 
+use App\Events\Event;
 use Illuminate\Database\Eloquent\Model;
 
 class Document extends Model
 {
-
+    protected $fillable = [
+        'job_id',
+        'file',
+    ];
 }
