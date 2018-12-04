@@ -13,45 +13,41 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Presenters\FilePresenter;
 
-class upload implements ShouldQueue
+class test_upload implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-    public $request;
+    public $data;
     public $api_token;
 
-    public function __construct($request,$api_token)
+    public function __construct($data,$api_token)
     {
-        $this->request = $request;
+        $this->data = $data;
         $this->api_token = $api_token;
     }
 
     public function handle()
     {
-        $name = $this->request['data'];
         $username = $this->Get_UserName($this->api_token);//get username by token
 
-        $i = count($name) - 1;
-        for ($j = 0; $j <= $i; $j++) {
-            $FileName[$j] = $name[$j]['filename'];
-            $Extension[$j] = strtolower(($name[$j]['extension']));
-            $FileWithExtension[$j] = $FileName[$j] . '.' . $Extension[$j];
-            $content[$j] = $name[$j]['content'];
+        $FileName = $this->data['filename'];
+        $Extension = strtolower(($this->data['extension']));
+        $FileWithExtension = $FileName . '.' . $Extension;
+        $content = $this->data['content'];
 
-            $this->Upload_S3($FileWithExtension[$j], base64_decode($content[$j]));
-            $size[$j] = $this->Get_Size($FileWithExtension[$j]);
+        $this->Upload_S3($FileWithExtension, base64_decode($content));
+        $size = $this->Get_Size($FileWithExtension);
 
-            $exist = $this->Check_File($FileName[$j],$Extension[$j]);
+        $result = $this->Check_File($FileName,$Extension);
 
-            if($exist->exists())
-                $exist->update([
-                    'updated_by' => $username
-                ]);
-            else
-                $this->Create_File($FileName[$j],$Extension[$j],$size[$j],$username);
-        }
-        $this->Create_Document();
+        if($result->exists())
+            $result->update([
+                'updated_by' => $username
+            ]);
+        else
+            $this->Create_File($FileName,$Extension,$size,$username);
+
+        $this->Create_Document($FileWithExtension);
     }
-
     public function Get_UserName($api_token)
     {
         return User::where('api_token',$api_token)->value('name');
@@ -78,12 +74,12 @@ class upload implements ShouldQueue
             'updated_by' => $username,
         ]);
     }
-    public function Create_Document()
+    public function Create_Document($FileWithExtension)
     {
         $id = $this->job->getJobId();
         Document::create([
             'job_id' => $id,
-            'file' => 'Upload job done.',
+            'file' => $FileWithExtension.' upload done.',
         ]);
     }
     public function Size_with_Unit($size)
@@ -103,7 +99,7 @@ class upload implements ShouldQueue
             $unit = 'GB';
         else if($divide_time==4)
             $unit = 'TB';
-        $size = number_format($size,1,'.','').' '.$unit;
+        $size = number_format($size,1,'.').' '.$unit;
         return $size;
     }
 }

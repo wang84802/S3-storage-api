@@ -24,6 +24,8 @@ Route::post('logout','Auth\LoginController@logout');
 Route::group(['middleware' => 'is_user'], function() {
     Route::post('api_upload','taskController@task_upload');
     Route::post('api_download','taskController@task_download');
+    Route::post('TestUpload','taskController@TestUpload');
+    Route::post('TestDownload','taskController@TestDownload');
 
     Route::post('rename','PostApiController@rename');
     Route::post('delete','PostApiController@delete');

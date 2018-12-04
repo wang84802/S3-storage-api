@@ -25,4 +25,3 @@ Route::get('show','PostApiController@show');
 
 //API User
 Route::post('test','PostApiController@test');
-

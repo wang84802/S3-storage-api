@@ -14,29 +14,19 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
-class download implements ShouldQueue
+class test_download implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-    public $body;
-    /**
-     * Create a new job instance.
-     *
-     * @return void
-     */
-    public function __construct($body)
+    public $name;
+
+    public function __construct($name)
     {
-        $this->body = $body;
+        $this->name = $name;
     }
-    /**
-     * Execute the job.
-     *
-     * @return void
-     */
     public function handle()
     {
         $id = $this->job->getJobId();
-
-        $filename = $this->body['data']['filename'];
+        $filename = $this->name;
         if($this->Exist_S3($filename))
         {
             $content = $this->Get_Content($filename);

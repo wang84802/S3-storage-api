@@ -23,6 +23,8 @@ class VerifyCsrfToken extends Middleware
         'restore',
         'Job_upload',
         'Job_download',
-        'test'
+        'test',
+        'TestUpload',
+        'TestDownload'
     ];
 }

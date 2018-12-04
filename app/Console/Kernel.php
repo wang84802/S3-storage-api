@@ -14,7 +14,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        
+        Commands\Clean::class,
     ];
 
     /**
@@ -25,9 +25,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->call(function () {
-            DB::table('documents')->where('file','failed')->delete();
-        })->daily();
+        $schedule->command('clean');
     }
 
     /**

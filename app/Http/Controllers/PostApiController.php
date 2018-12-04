@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use DB;
 use Storage;
 use App\File;
 use App\Document;
@@ -23,11 +24,28 @@ class PostApiController extends Controller
     }
     public function test()
     {
+
+        $cart = array(
+            'data' => array(
+                array(
+                    'filename' => 'test1.txt',
+                    'content' => 'serwerwe'
+                ),
+                array(
+                    'filename' => 'test2.txt',
+                    'content' => 'werwerar'
+                )
+            ),
+        );
+        $cart['data'][2]['filename'] = '1';
+        //$cart = json_encode($cart);
+        return $cart;
+        //return response()->json(['data'=> ['filename'=>'test1']   ]);
+
         try {
             $error = 'Always throw this error';
         if (1)
             throw new Exception($error);
-
         echo 'Never executed';
         } catch (Exception $e) {
             echo 'Caught exception: ',  $e->getMessage(),'<br>';
@@ -36,36 +54,6 @@ class PostApiController extends Controller
     public function show()
     {
         return $this->fileRepository->Show();
-    }
-    public function zip(Request $request)//zip : download with zipfile
-    {
-        $S3_url = "https://chris-storage-api.s3.ap-southeast-1.amazonaws.com/";
-        $zipfile = $request->input('zipfile');
-        $name = $request->input('data');
-        $stream = fopen($S3_url.$name[0]['filename'],'r');
-        //return $stream;
-        return stream_get_contents($stream);
-
-        $count = count($name)-1;
-        for($i=0;$i<=$count;$i++){
-            if(!Storage::disk('s3')->exists($name[$i]['filename']))
-                abort(404, $name[$i]['filename']. ' does not exist in S3.');
-        }
-
-        $zip = new \ZipArchive();
-        $zip->open('/var/www/html/S3/public/'.$zipfile, \ZipArchive::CREATE);
-
-        for($i=0;$i<=$count;$i++){
-            $zip->addFromString($name[$i]['filename'],base64_encode(file_get_contents($S3_url.$name[$i]['filename'])));
-        }
-        $zip->close();
-
-        header('Content-disposition: attachment; filename='.$zipfile);
-        header('Content-type: application/zip');
-        $content = readfile('/var/www/html/S3/public/'.$zipfile);
-        //return $content;
-        Storage::disk('s3')->put('test1.zip',(string)$content);
-        unlink(public_path($zipfile));
     }
     public function rename(Request $request)//rename
     {
@@ -116,13 +104,13 @@ class PostApiController extends Controller
         }else
             echo $filename.'.'.$extension.' delete unsuccessfully!';
     }
-    /*
+
     public function restore(Request $request)
     {
         $filename = $request->input('filename');
-        $files = File::withTrashed()->where('name',$filename)->restore();
+        return File::withTrashed()->where('name',$filename)->first();
     }
-    */
+
     public function search(Request $request)
     {
         $search = $request->search;
@@ -133,64 +121,4 @@ class PostApiController extends Controller
         else
             return $files->simplepaginate(2);
     }
-//    public function upload(Request $request)//api_upload
-//    {
-//        //API of multiple files upload (filename & filecontent in request)
-//        ///*
-//        $name = $request->all();
-//        $name = $name['data'];
-//        $api = $request->header('Api-Token');
-//        $username = $this->userRepository
-//            ->getNameByToken($api);
-//
-//        $i = count($name)-1;
-//        for( $j = 0 ; $j <= $i ; $j ++ ) {
-//            $FileName[$j] = $name[$j]['filename'];
-//
-//            $this->fileRepository->Delete($FileName[$j]); //soft-delete
-//
-//            $Extension[$j] = strtolower($name[$j]['extension']);
-//            $FileWithExtension[$j] = $FileName[$j].'.'.$Extension[$j];
-//            $content[$j] = $name[$j]['content'];
-//
-//            Storage::disk('s3')->put($FileWithExtension[$j],base64_decode($content[$j]));  //upload
-//
-//            $size[$j] = Storage::disk('s3')->size($FileWithExtension[$j]);  //get file size
-//
-//            $this->fileRepository->File($FileName[$j],$Extension[$j],$size[$j],$username,$username); //create file
-//        }
-//        //check records in S3
-//        for ($k = 0 ; $k <= $i ; $k ++ ) {
-//            $hasfile = Storage::disk('s3')->has($FileWithExtension[$k]);
-//            if ($hasfile)
-//                echo $FileWithExtension[$k]." Upload Success!".'<br>';
-//             else
-//                echo $FileWithExtension[$k]." Upload Failed!".'<br>';
-//        }
-//    }
-//    public function download(Request $request)//api_download
-//    {
-//        //API of single file download(filename in request)
-//        $name = $request->input('data.filename');
-//        if( Storage::disk('s3')->exists($name) ) {
-//
-//            $file =  Storage::disk('s3')->get($name);
-//            Storage::disk('s3')->put('API_upload.PNG',$file);
-//            return base64_encode($file);
-//            //$file = base64_encode($file);
-//            $headers = [
-//                'Content-Type' => 'your_content_type',
-//                'Content-Description' => 'File Transfer',
-//                'Content-Disposition' => "attachment; filename={$name}",
-//                'filename'=> $name
-//            ];
-//            return response()->make($file, 200, $headers);
-//            //return response()->JSON([
-//            //    'filename' => $name,
-//            //   'content' => $file,
-//            //]);
-//        }
-//        else
-//            abort(404, 'File does not exist in S3.');
-//    }
 }
