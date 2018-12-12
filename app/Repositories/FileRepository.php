@@ -56,13 +56,19 @@ class FileRepository
     public function Search($search)
     {
         return $this->file
-        ->where('name','like','%'.$search.'%');
+            ->where('name','like','%'.$search.'%');
     }
     public function Show()
     {
         return $this->file
-        ->select('name','extension','size','updated_at')->where('deleted_at',NULL)->get();
+            ->select('name','extension','size','updated_at')->where('deleted_at',NULL)->get();
     }
-
+    public function UpdateName($filename,$extension,$name)
+    {
+        return $this->file
+            ->where('name',$filename)
+            ->where('extension',$extension)
+            ->update(array('updated_by' => $name));
+    }
 };
 

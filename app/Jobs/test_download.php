@@ -27,14 +27,12 @@ class test_download implements ShouldQueue
     {
         $id = $this->job->getJobId();
         $filename = $this->name;
-        if($this->Exist_S3($filename))
+        if($this->Exist_S3($filename) && $this->Exist_File($filename))
         {
             $content = $this->Get_Content($filename);
             $this->Create_Document($id,base64_encode($content));
         }
         else
-            $this->Create_Document($id,'File does not exist!');
-        if(!$this->Exist_DB($id)) //not create db
             $this->Create_Document($id,'File does not exist!');
     }
     public function Exist_S3($filename)
@@ -52,8 +50,14 @@ class test_download implements ShouldQueue
             'file' => $content,
         ]);
     }
-    public function Exist_DB($id)
+    public function Exist_Document($id)
     {
         return Document::where('job_id',$id)->exists();
+    }
+    public function Exist_File($name)
+    {
+        return File::where(
+            'name',strstr($name,strrchr($name,'.'),true)) //get original file name
+        ->exists();
     }
 }

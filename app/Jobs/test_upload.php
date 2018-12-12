@@ -29,7 +29,7 @@ class test_upload implements ShouldQueue
     {
         $username = $this->Get_UserName($this->api_token);//get username by token
 
-        $FileName = $this->data['filename'];
+        //$FileName = $this->data['filename'];
         $Extension = strtolower(($this->data['extension']));
         $FileWithExtension = $FileName . '.' . $Extension;
         $content = $this->data['content'];
@@ -40,9 +40,7 @@ class test_upload implements ShouldQueue
         $result = $this->Check_File($FileName,$Extension);
 
         if($result->exists())
-            $result->update([
-                'updated_by' => $username
-            ]);
+            $result->update(['updated_by' => $username,'size' => $this->Size_with_Unit($size)]);
         else
             $this->Create_File($FileName,$Extension,$size,$username);
 
@@ -79,7 +77,7 @@ class test_upload implements ShouldQueue
         $id = $this->job->getJobId();
         Document::create([
             'job_id' => $id,
-            'file' => $FileWithExtension.' upload done.',
+            'file' => $FileWithExtension.' upload succeed.',
         ]);
     }
     public function Size_with_Unit($size)
@@ -99,7 +97,7 @@ class test_upload implements ShouldQueue
             $unit = 'GB';
         else if($divide_time==4)
             $unit = 'TB';
-        $size = number_format($size,1,'.').' '.$unit;
+        $size = number_format($size,1).' '.$unit; //first decimal place
         return $size;
     }
 }

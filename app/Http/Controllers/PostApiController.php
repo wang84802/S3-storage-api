@@ -90,15 +90,18 @@ class PostApiController extends Controller
     }
     public function delete(Request $request)
     {
+        $api = $request->header('Api-Token');
+        $username = $this->userRepository->getNameByToken($api);
         $filename = $request->input('filename');
         $extension = $request->input('extension');
         $delete_files = $this->fileRepository->GetFile($filename,$extension);
-        //return $delete_files->get();
         if($delete_files->get()=='[]'){
             abort(404, $filename.'.'.$extension.' does not exist.');
         }else
+        {
+            $this->fileRepository->UpdateName($filename,$extension,$username);
             $delete_files->delete();
-
+        }
         if($this->fileRepository->GetFilewithTrashed($filename,$extension)){ // force softdelete objects to show
             echo $filename.'.'.$extension.' delete successfully!';
         }else
@@ -108,7 +111,8 @@ class PostApiController extends Controller
     public function restore(Request $request)
     {
         $filename = $request->input('filename');
-        return File::withTrashed()->where('name',$filename)->first();
+        $result = File::withTrashed()->where('name',$filename)->first();
+        $result->restore();
     }
 
     public function search(Request $request)

@@ -14,7 +14,7 @@ use Illuminate\Contracts\Bus\Dispatcher;
 
 class taskController extends Controller
 {
-///* * * Multiple Upload/Download * * *///
+    /* Multiple Upload/Download with JSON */
     public function TestUpload(Request $request)
     {
         $array = array();
@@ -26,13 +26,14 @@ class taskController extends Controller
             $timeout = false;
             $data = $request['data'][$i];
             $job = (new test_upload($data,$api_token));
+            $FilewithExtension =  $data['filename'].'.'.$data['extension'];
             $id = app(Dispatcher::class)->dispatch($job);
             while (1)
             {
                 $end = microtime(true);
                 if($this->Document_Exist($id))
                     break;
-                else if($end-$start>10)
+                else if($end-$start>15)
                 {
                     $timeout = true;
                     break;
@@ -40,11 +41,12 @@ class taskController extends Controller
                     sleep(1);
             }
             if ($timeout == true)
-                $array['response'][$i] = array($id => 'Upload job failed.');
+                $array['response'][$i] = array($FilewithExtension => 'Upload job timeout.');
             else
             {
                 if(File::where('name',$data['filename'])->where('extension',$data['extension'])->exists())
-                    $array['response'][$i] = array($id => 'Upload job succeed.');
+                    $document = $this->Document_Exist($id);
+                    $array['response'][$i] = array($FilewithExtension => $document->file);
             }
         }
         return json_encode($array);
@@ -57,39 +59,34 @@ class taskController extends Controller
         for($i=0;$i<=$count;$i++)
         {
             $name = $data[$i]['filename'];
-            $result = $this->File_Exist($name);
-            if($result=='[]')
-                abort(404, $name.' does not exist.'); //not exist in db
+
+            $start = microtime(true);
+            $timeout = false;
+            $job = (new test_download($name));
+            $id = app(Dispatcher::class)->dispatch($job);
+            while (1)
+            {
+                $end = microtime(true);
+                if($this->Document_Exist($id))
+                    break;
+                else if($end-$start>15)
+                {
+                    $timeout = true;
+                    break;
+                }else
+                    sleep(1);
+            }
+            if ($timeout == true)
+                $array['response'][$i] = array($name => 'Download job timeout.');
             else
             {
-                $start = microtime(true);
-                $timeout = false;
-                $job = (new test_download($name));
-                $id = app(Dispatcher::class)->dispatch($job);
-                while (1)
-                {
-                    $end = microtime(true);
-                    if($this->Document_Exist($id))
-                        break;
-                    else if($end-$start>10)
-                    {
-                        $timeout = true;
-                        break;
-                    }else
-                        sleep(1);
-                }
-                if ($timeout == true)
-                    $array['response'][$i] = array($id => 'Upload job failed.');
-                else
-                {
-                    $document = $this->Document_Exist($id);
-                    $array['response'][$i] = array($id => $document->file);
-                }
+                $document = $this->Document_Exist($id);
+                $array['response'][$i] = array($name => $document->file/*,'time' => microtime(true)-$start*/);
             }
         }
         return json_encode($array);
     }
-///* * * Single Upload/Download * * *///
+    /* Single Upload/Download */
     public function task_upload(Request $request)
     {
         $start = microtime(true);
