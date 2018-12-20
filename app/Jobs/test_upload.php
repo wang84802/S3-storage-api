@@ -12,6 +12,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Presenters\FilePresenter;
+use Log;
 
 class test_upload implements ShouldQueue
 {
@@ -27,24 +28,29 @@ class test_upload implements ShouldQueue
 
     public function handle()
     {
+        $id = $this->job->getJobId();
         $username = $this->Get_UserName($this->api_token);//get username by token
 
-        //$FileName = $this->data['filename'];
+        $FileName = $this->data['filename'];
         $Extension = strtolower(($this->data['extension']));
         $FileWithExtension = $FileName . '.' . $Extension;
         $content = $this->data['content'];
-
-        $this->Upload_S3($FileWithExtension, base64_decode($content));
+        $start = microtime(true);
+        Storage::disk('local')->put('Upload_Pool/'.$id.'_'.$FileWithExtension, base64_decode($content));
+        $content = Storage::disk('local')->get('Upload_Pool/'.$id.'_'.$FileWithExtension);
+        $this->Upload_S3($FileWithExtension, $content);
+        $end = microtime(true);
+        Log::info('One file download time:'.($end-$start));
         $size = $this->Get_Size($FileWithExtension);
 
         $result = $this->Check_File($FileName,$Extension);
-
+        $FilePresenter = new FilePresenter();
         if($result->exists())
-            $result->update(['updated_by' => $username,'size' => $this->Size_with_Unit($size)]);
+            $result->update(['updated_by' => $username,'size' => $FilePresenter->getsize($size)]);
         else
             $this->Create_File($FileName,$Extension,$size,$username);
 
-        $this->Create_Document($FileWithExtension);
+        $this->Create_Document($id);
     }
     public function Get_UserName($api_token)
     {
@@ -72,32 +78,11 @@ class test_upload implements ShouldQueue
             'updated_by' => $username,
         ]);
     }
-    public function Create_Document($FileWithExtension)
+    public function Create_Document($id)
     {
-        $id = $this->job->getJobId();
         Document::create([
             'job_id' => $id,
-            'file' => $FileWithExtension.' upload succeed.',
+            'file' => 'Upload succeed.',
         ]);
-    }
-    public function Size_with_Unit($size)
-    {
-        $unit = 'B';
-        $divide_time = 0;
-        while($size/1024 >= 1)
-        {
-            $size=$size/1024;
-            $divide_time++;
-        }
-        if($divide_time==1)
-            $unit = 'KB';
-        else if($divide_time==2)
-            $unit = 'MB';
-        else if($divide_time==3)
-            $unit = 'GB';
-        else if($divide_time==4)
-            $unit = 'TB';
-        $size = number_format($size,1).' '.$unit; //first decimal place
-        return $size;
     }
 }

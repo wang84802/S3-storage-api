@@ -46,9 +46,17 @@ class FileRepository
             ->where('name',$filename)
             ->where('extension',$extension);
     }
-    public function GetFilewithTrashed($filename,$extension)
+    public function GetFileWithTrashed($id,$filename,$extension)
     {
-        return $this->file->withTrashed()
+        return File::withTrashed()->where([
+            'id' => $id,
+            'name' => $filename,
+            'extension' => $extension
+        ]);
+    }
+    public function GetFileOnlyTrashed($filename,$extension)
+    {
+        return $this->file->onlyTrashed()
             ->where('name',$filename)
             ->where('extension',$extension)
             ->get();
@@ -61,7 +69,12 @@ class FileRepository
     public function Show()
     {
         return $this->file
-            ->select('name','extension','size','updated_at')->where('deleted_at',NULL)->get();
+            ->select('name','extension','size','updated_at')->whereNULL('deleted_at')->get();
+    }
+    public function RecycleBin()
+    {
+        return $this->file->onlyTrashed()
+            ->select('id','name','extension','size','updated_at')->get();
     }
     public function UpdateName($filename,$extension,$name)
     {

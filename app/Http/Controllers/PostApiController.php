@@ -3,8 +3,7 @@
 namespace App\Http\Controllers;
 
 use Exception;
-use DB;
-use Storage;
+use Illuminate\Support\Facades\Storage;
 use App\File;
 use App\Document;
 use Illuminate\Http\Request;
@@ -13,7 +12,7 @@ use App\Repositories\FileRepository;
 use Zipper;
 use ZipArchive;
 use App\Events\OrderShipped;
-
+use Log;
 class PostApiController extends Controller
 {
     protected $userRepository,$fileRepository;
@@ -22,26 +21,30 @@ class PostApiController extends Controller
         $this->fileRepository = $fileRepository;
         $this->userRepository = $userRepository;
     }
-    public function test()
+    public function UploadString(Request $request)
     {
+        $content = base64_encode(file_get_contents($request->file('name')->getRealPath()));
+        $array = array();
+        for($i = 0;$i<=1;$i++)
+        {
+            $array['data'][$i] = array(
+                'filename' => 'test'.($i+1),
+                'extension' => 'txt',
+                'content' => $content
+            );
 
-        $cart = array(
-            'data' => array(
-                array(
-                    'filename' => 'test1.txt',
-                    'content' => 'serwerwe'
-                ),
-                array(
-                    'filename' => 'test2.txt',
-                    'content' => 'werwerar'
-                )
-            ),
-        );
-        $cart['data'][2]['filename'] = '1';
-        //$cart = json_encode($cart);
-        return $cart;
-        //return response()->json(['data'=> ['filename'=>'test1']   ]);
-
+        }
+        return $array;
+    }
+    public function test(Request $request)
+    {
+        $a = microtime(true);
+        $name = $request->file('name')->getClientOriginalName();
+        $content = (file_get_contents($request->file('name')->getRealPath()));
+        Storage::disk('s3')->put($name,$content);
+        $b = microtime(true);
+        Log::info('Test file upload time:'.$b.' '.$a);
+        return 0;
         try {
             $error = 'Always throw this error';
         if (1)
@@ -51,10 +54,7 @@ class PostApiController extends Controller
             echo 'Caught exception: ',  $e->getMessage(),'<br>';
         }
     }
-    public function show()
-    {
-        return $this->fileRepository->Show();
-    }
+
     public function rename(Request $request)//rename
     {
         $api = $request->header('Api-Token');
@@ -72,7 +72,7 @@ class PostApiController extends Controller
         for( $j = 0 ; $j <= $i ; $j++){ //check record in S3 before rename
             $hasfile = $this->fileRepository->GetFile($OriginalName[$j],$Extension[$j])->get();
             if ($hasfile=='[]')
-                abort(404, $O_FileWithExtension[$j]." does not exist!");
+                response($O_FileWithExtension[$j]." does not exist!",404);
         }
         for( $j = 0 ; $j <= $i ; $j++ ){ //update S3
             Storage::disk('s3')->move($O_FileWithExtension[$j],$R_FileWithExtension[$j]);
@@ -85,34 +85,8 @@ class PostApiController extends Controller
             if($hasfile!=='[]')
                 echo $R_FileWithExtension[$j].' rename successfully!'."<br/>";
             else
-                abort(404, $R_FileWithExtension[$j]." rename unsuccessfully!");
+                response( $R_FileWithExtension[$j]." rename unsuccessfully!",404);
         }
-    }
-    public function delete(Request $request)
-    {
-        $api = $request->header('Api-Token');
-        $username = $this->userRepository->getNameByToken($api);
-        $filename = $request->input('filename');
-        $extension = $request->input('extension');
-        $delete_files = $this->fileRepository->GetFile($filename,$extension);
-        if($delete_files->get()=='[]'){
-            abort(404, $filename.'.'.$extension.' does not exist.');
-        }else
-        {
-            $this->fileRepository->UpdateName($filename,$extension,$username);
-            $delete_files->delete();
-        }
-        if($this->fileRepository->GetFilewithTrashed($filename,$extension)){ // force softdelete objects to show
-            echo $filename.'.'.$extension.' delete successfully!';
-        }else
-            echo $filename.'.'.$extension.' delete unsuccessfully!';
-    }
-
-    public function restore(Request $request)
-    {
-        $filename = $request->input('filename');
-        $result = File::withTrashed()->where('name',$filename)->first();
-        $result->restore();
     }
 
     public function search(Request $request)
@@ -124,5 +98,82 @@ class PostApiController extends Controller
             return response()->json(['message' => 'String not found.'],404);
         else
             return $files->simplepaginate(2);
+    }
+
+    public function delete(Request $request)
+    {
+        $api = $request->header('Api-Token');
+        $username = $this->userRepository->getNameByToken($api);
+        $data = $request->input('data');
+        $i = count($data)-1;
+        for( $j = 0 ; $j <= $i ; $j++ ) {
+            $filename = $data[$j]['filename'];
+            $extension = $data[$j]['extension'];
+            $delete_files = $this->fileRepository->GetFile($filename, $extension);
+            if ($delete_files->get() == '[]') {
+                response( $filename . '.' . $extension . ' does not exist.',404);
+            } else {
+                $this->fileRepository->UpdateName($filename, $extension, $username);
+                $delete_files->delete();
+            }
+            if ($this->fileRepository->GetFileOnlyTrashed($filename, $extension)) { // show softdelete objects
+                echo $filename . '.' . $extension . ' delete successfully!'.'<br>';
+            } else {
+                echo $filename . '.' . $extension . ' delete unsuccessfully!'.'<br>';
+            }
+        }
+    }
+
+    public function restore(Request $request)
+    {
+        $api = $request->header('Api-Token');
+        $username = $this->userRepository->getNameByToken($api);
+        $data = $request->data;
+        $i = count($data)-1;
+        for( $j = 0 ; $j <= $i ; $j++ ) {
+            $id = $data[$j]['id'];
+            $filename = $data[$j]['filename'];
+            $extension = $data[$j]['extension'];
+            $result = $this->fileRepository->GetFileOnlyTrashed($id,$filename,$extension);
+            if ($result->get()=='[]')
+                return response($filename.'.'.$extension.' does not exist!',404);
+            else
+            {
+                $result->update(['updated_by'=>$username]);
+                $result->restore();
+            }
+
+            if ($result) { // force softdelete objects to show
+                echo $filename . '.' . $extension . ' restore successfully!'.'<br>';
+            } else {
+                echo $filename . '.' . $extension . ' restore unsuccessfully!'.'<br>';
+            }
+        }
+    }
+    public function hard_delete(Request $request)
+    {
+        $data = $request->data;
+        $i = count($data)-1;
+        for( $j = 0 ; $j <= $i ; $j++ ) {
+            $id = $data[$j]['id'];
+            $filename = $data[$j]['filename'];
+            $extension = $data[$j]['extension'];
+            $result = $this->fileRepository->GetFileOnlyTrashed($id,$filename,$extension);
+            if ($result->get() == '[]')
+                return response( $filename . '.' . $extension . ' does not exist!',404);
+            else
+            {
+                $result->forceDelete();
+                Storage::disk('s3')->delete($filename . '.' . $extension);
+            }
+
+
+            if (!$result) { // force softdelete objects to show
+                echo $filename . '.' . $extension . ' hard_delete successfully!'.'<br>';
+            } else {
+                echo $filename . '.' . $extension . ' hard_delete unsuccessfully!'.'<br>';
+            }
+
+        }
     }
 }

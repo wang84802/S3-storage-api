@@ -17,6 +17,7 @@ class VerifyCsrfToken extends Middleware
         'download',
         'rename',
         'delete',
+        'hard_delete',
         'admin_create',
         'search',
         'zip',
@@ -24,7 +25,9 @@ class VerifyCsrfToken extends Middleware
         'Job_upload',
         'Job_download',
         'test',
+        'UploadString',
         'TaskUpload',
-        'TaskDownload'
+        'TaskDownload',
+        'restore'
     ];
 }

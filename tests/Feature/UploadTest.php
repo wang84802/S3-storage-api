@@ -9,6 +9,7 @@ use App\User;
 use App\File;
 use App\Jobs\test_upload;
 use Storage;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Contracts\Bus\Dispatcher;
 
@@ -28,21 +29,14 @@ class UploadTest extends TestCase
     public function testOrderShipping()
     {
         Queue::fake();
-//        $user = factory(User::class)->make();
-//        $token = $user->generateToken();
-//        $headers = ['Api-Token' => $token];
-//        $payload =
-//        array(
-//            'filename' => 'test1',
-//            'extension' => 'txt',
-//            'content' => 'aGVsbG8gd29ybGQ='
-//        );
-//        $job = (new test_upload($payload,$token));
+        $data = '{
+	        "data": [
+                
+            ]
+        }';
+        $api = '';
+        dispatch(new test_upload($data,$api));
 
-        Queue::assertNotPushed(test_upload::class);
-//        Queue::assertPushed(test_upload::class,function ($job){
-//            return strlen($job->message) < 140;
-//
-//        });
+        Queue::assertPushed(test_upload::class);
     }
 }

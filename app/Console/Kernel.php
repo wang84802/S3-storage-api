@@ -5,6 +5,7 @@ namespace App\Console;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use DB;
+use Storage;
 
 class Kernel extends ConsoleKernel
 {
@@ -25,7 +26,14 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('clean');
+        $schedule->call(function () {
+            $download = Storage::disk('local')->files('Download_Pool');
+            for ($i = 0 ; $i <= count($download)-1 ; $i++)
+                Storage::disk('local')->delete($download[$i]);
+            $upload = Storage::disk('local')->files('Upload_Pool');
+            for ($i = 0 ; $i <= count($upload)-1 ; $i++)
+                Storage::disk('local')->delete($upload[$i]);
+        })->everyMinute();
     }
 
     /**

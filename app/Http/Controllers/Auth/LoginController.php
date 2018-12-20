@@ -7,6 +7,10 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use App\User;
 use Illuminate\Support\Facades\Auth;
+use App\Repositories\UserRepository;
+use App\Notifications\UserNotification;
+use Notification;
+use Log;
 
 class LoginController extends Controller
 {
@@ -33,14 +37,15 @@ class LoginController extends Controller
      * @var string
      */
     protected $redirectTo = '/home';
-
+    protected $userRepository;
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(UserRepository $userRepository)
     {
+        $this->UserRepository = $userRepository;
         $this->middleware('guest')->except('logout');
     }
     public function login(Request $request)
@@ -49,8 +54,11 @@ class LoginController extends Controller
 
         if ($this->attemptLogin($request)) {
             $user = $this->guard()->user();
-            $user->generateToken();
-
+            //$user->generateToken();
+            $user->Status_Login();
+            $message = 'User login.';
+            Notification::route('slack', env('SLACK_WEBHOOK2'))->notify(new UserNotification($user,$message));
+            Log::info($user->toArray());
             return response()->json([
                 'data' => $user->toArray(),
             ]);
@@ -69,8 +77,12 @@ class LoginController extends Controller
         else
             $user = $user[0];
         if($user) {
-            $user->api_token = null;
+            $user->status = 'logout';
+            //$user->api_token = null;
             $user->save();
+            $message = 'User logout.';
+            Notification::route('slack', env('SLACK_WEBHOOK2'))->notify(new UserNotification($user,$message));
+
             return response()->json(['response' => $user->name.' logged out.'], 200);
         }else {
             return response()->json(['response' => 'User does not exist!'], 404);

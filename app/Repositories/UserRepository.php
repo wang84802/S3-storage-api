@@ -27,4 +27,10 @@ class UserRepository
             ->where('api_token',$token)
             ->value('name');
     }
+    public function getStatusByToken($token)
+    {
+        return $this->user
+            ->where('api_token',$token)
+            ->value('status');
+    }
 };

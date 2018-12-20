@@ -6,20 +6,20 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\SlackMessage;
-use Log;
 
-class JobFailedNotification extends Notification
+class UserNotification extends Notification
 {
     use Queueable;
-    private $event;
+    private $user,$message;
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($event)
+    public function __construct($user,$message)
     {
-        $this->event = $event;
+        $this->user = $user;
+        $this->message = $message;
     }
 
     /**
@@ -42,22 +42,21 @@ class JobFailedNotification extends Notification
     public function toSlack($notifiable)
     {
         return (new SlackMessage)
-        ->from('https://hooks.slack.com/services/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')
-        ->to(env('SLACK_CHANNEL'))
-        ->image('https://placeimg.com/48/48/any')
-        ->error()
-        ->content('Queued job failed: ' . $this->event['job'])
-        ->attachment(function ($attachment) {
-            $attachment->title($this->event['exception']['message'])
-                ->fields([
-                    'Project' => 'S3-storage-api',
-                    'Job_Id' => $this->event['id'],
-                    'File' => $this->event['exception']['file'],
-                    'Line' => $this->event['exception']['line'],
-                    'Server' => env('APP_ENV'),
-                    'Queue' => $this->event['queue'],
-                ]);
-        });
+            ->from('https://hooks.slack.com/services/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')
+            ->to(env('SLACK_CHANNEL2'))
+            ->attachment(function ($attachment) {
+                $attachment->title($this->message)
+                    ->fields([
+                        'id' => $this->user['id'],
+                        'name' => $this->user['name'],
+                        'email' => $this->user['email'],
+                        'created_at' => $this->user['created_at'],
+                        'updated_at' => $this->user['updated_at'],
+                        'type' => $this->user['type'],
+                        'api_token' => $this->user['api_token'],
+                        'status' => $this->user['status'],
+                    ]);
+            });
 
     }
 
