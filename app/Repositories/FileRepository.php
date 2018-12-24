@@ -1,6 +1,8 @@
 <?php
 namespace App\Repositories;
+
 use App\File;
+use Illuminate\Http\Request;
 use App\Presenters\FilePresenter;
 
 class FileRepository
@@ -69,7 +71,7 @@ class FileRepository
     public function Show()
     {
         return $this->file
-            ->select('name','extension','size','updated_at')->whereNULL('deleted_at')->get();
+            ->select('name','extension','size','updated_at')->whereNULL('deleted_at')->simplepaginate(10);
     }
     public function RecycleBin()
     {

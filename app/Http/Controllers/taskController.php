@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use function GuzzleHttp\Psr7\_caseless_remove;
+use DB;
 use Storage;
 use App\File;
 use App\Document;
@@ -13,11 +13,12 @@ use App\Jobs\test_download;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Contracts\Bus\Dispatcher;
+use App\Jobs\ProcessPodcast;
 use Log;
 
 class taskController extends Controller
 {
-    /* Multiple Upload/Download with JSON */
+    /* Multiple Upload/Download , Response with JSON */
     public function TestUpload(Request $request)
     {
         $start_total = microtime(true);
@@ -41,36 +42,39 @@ class taskController extends Controller
             $job = (new test_upload($data,$api_token));
             $FilewithExtension =  $data['filename'].'.'.$data['extension'];
             $id = app(Dispatcher::class)->dispatch($job);
-            while (1)
-            {
-                $end = microtime(true);
-                if($this->Storage_Exist('Upload_Pool/'.$id.'_'.$FilewithExtension))
-                    if($this->Document_Exist($id)!==NULL)
-                        break;
-                else if($end-$start>15)
+                while (1)
                 {
-                    $timeout = true;
-                    break;
-                }else
-                    sleep(1);
-            }
-            if ($timeout == true)
-                $array['response'][$i] = array($FilewithExtension => 'Upload job timeout.');
-            else if(File::where('name',$data['filename'])->where('extension',$data['extension'])->exists())
-            {
-                $document = $this->Document_Exist($id);
-                $array['response'][$i] = array($FilewithExtension => $document->file);
-            }
-
+//                    if(DB::table('jobs')->where('id',$id)->get() != '[]')
+//                        Log::info('job on DB:'.microtime(true));
+//                    else
+//                        Log::info('job not on DB:'.microtime(true));
+                    $end = microtime(true);
+                    if($this->Storage_Exist('Upload_Pool/'.$id.'_'.$FilewithExtension))
+                        if($this->Document_Exist($id)!==NULL)
+                            break;
+                    else if($end-$start>15)
+                    {
+                        $timeout = true;
+                        break;
+                    }
+                }
+                if ($timeout == true)
+                    $array['response'][$i] = array($FilewithExtension => 'Upload job timeout.');
+                else if(File::where('name',$data['filename'])->where('extension',$data['extension'])->exists())
+                {
+                    $document = $this->Document_Exist($id);
+                    $array['response'][$i] = array($FilewithExtension => $document->file);
+                }
         }
         $end_total = microtime(true);
-        Log::info("start:".$start_total);
-        Log::info("end  :".$end_total);
+
         Log::info('Upload total time:'.($end_total-$start_total));
-        return ($array);
+        Log::info('----------------------');
+        //return ($array);
     }
     public function TestDownload(Request $request)
     {
+        $start_total = microtime(true);
         $array = array();
         $files = Storage::disk('local')->files('Download_Pool');
         do{ // check storage area
@@ -110,8 +114,7 @@ class taskController extends Controller
                 {
                     $timeout = true;
                     break;
-                }else
-                    sleep(1);
+                }
             }
             if ($timeout == true)
             {
@@ -124,6 +127,9 @@ class taskController extends Controller
                 $array['response'][$i] = array($name => $document->file);
             }
         }
+        $end_total = microtime(true);
+        Log::info('Download total time:'.($end_total-$start_total));
+        Log::info('----------------------');
         if($has_error == true)
             return $array;
         else

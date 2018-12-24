@@ -30,8 +30,9 @@ Route::group(['middleware' => 'is_user'], function() {
     Route::post('rename','PostApiController@rename');
     Route::post('delete','PostApiController@delete');
     Route::post('hard_delete','PostApiController@hard_delete');
-    Route::post('search','PostApiController@search');
     Route::post('restore','PostApiController@restore');
+
+    Route::get('search','GetApiController@search');
     Route::get('show','GetApiController@show');
     Route::get('recycle_bin','GetApiController@recycle_bin');
 

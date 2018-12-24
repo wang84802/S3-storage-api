@@ -36,11 +36,14 @@ class test_upload implements ShouldQueue
         $FileWithExtension = $FileName . '.' . $Extension;
         $content = $this->data['content'];
         $start = microtime(true);
+        //Log::info('Put in pool start time:'.microtime(true));
         Storage::disk('local')->put('Upload_Pool/'.$id.'_'.$FileWithExtension, base64_decode($content));
         $content = Storage::disk('local')->get('Upload_Pool/'.$id.'_'.$FileWithExtension);
+        //Log::info('Upload to S3 start time:'.microtime(true));
         $this->Upload_S3($FileWithExtension, $content);
         $end = microtime(true);
-        Log::info('One file download time:'.($end-$start));
+        //Log::info('Upload end time:'.($end));
+        //Log::info('One file upload time:'.($end-$start));
         $size = $this->Get_Size($FileWithExtension);
 
         $result = $this->Check_File($FileName,$Extension);
@@ -70,10 +73,11 @@ class test_upload implements ShouldQueue
     }
     public function Create_File($name,$extension,$size,$username)
     {
+        $FilePresenter = new FilePresenter();
         File::create([
             'name' => $name,
             'extension' => strtolower($extension),
-            'size' => $this->Size_with_Unit($size),
+            'size' => $FilePresenter->getsize($size),
             'created_by' => $username,
             'updated_by' => $username,
         ]);
