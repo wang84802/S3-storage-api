@@ -11,17 +11,22 @@ class CreateUserController extends Controller
 {
     public function create(Request $request)
     {
-        $name = $request->name;
-        $email = $request->email;
-        $password = $request->password;
-
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|min:5|confirmed',
+            'password_confirmation' => 'required|min:5'
+        ]);
+        if($validator->fails()){
+            return response()->json($validator->errors(), 400);
+        }
         User::create([
-            'name' => $name,
-            'email' => $email,
-            'password' => bcrypt($password)
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password)
         ]);
 
-        $query = DB::table('users')->where('name','=',$name); // Query DB
+        $query = DB::table('users')->where('name','=',$request->name); // Query DB
         return response()->json($query->get(),201);
     }
 }

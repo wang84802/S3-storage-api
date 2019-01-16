@@ -8,7 +8,9 @@ class Document extends Model
 {
 
     protected $fillable = [
-        'job_id',
+        'id',
+        'uni_id',
         'file',
+        'created_by',
     ];
 }

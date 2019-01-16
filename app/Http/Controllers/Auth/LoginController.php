@@ -57,7 +57,7 @@ class LoginController extends Controller
             //$user->generateToken();
             $user->Status_Login();
             $message = 'User login.';
-            Notification::route('slack', env('SLACK_WEBHOOK2'))->notify(new UserNotification($user,$message));
+            Notification::route('slack', 'https://hooks.slack.com/services/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')->notify(new UserNotification($user,$message));
             Log::info($user->toArray());
             return response()->json([
                 'data' => $user->toArray(),

@@ -42,15 +42,15 @@ class JobFailedNotification extends Notification
     public function toSlack($notifiable)
     {
         return (new SlackMessage)
-        ->from('https://hooks.slack.com/services/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')
-        ->to(env('SLACK_CHANNEL'))
+        ->from('https://hooks.slack.com/services/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')
+        ->to(env('queue-notification'))
         ->image('https://placeimg.com/48/48/any')
         ->error()
         ->content('Queued job failed: ' . $this->event['job'])
         ->attachment(function ($attachment) {
             $attachment->title($this->event['exception']['message'])
                 ->fields([
-                    'Project' => 'S3-storage-api',
+                    'Project' => 'S3',
                     'Job_Id' => $this->event['id'],
                     'File' => $this->event['exception']['file'],
                     'Line' => $this->event['exception']['line'],

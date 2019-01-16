@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests;
 
+use Log;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Contracts\Validation\Validator;
 
 class UploadRequest extends FormRequest
 {
@@ -24,14 +27,28 @@ class UploadRequest extends FormRequest
     public function rules()
     {
         $rules = [
-            'name' => 'required'
+            'data.filename' => 'required',
+            'data.content' => 'required'
         ];
-
-        $photos = count($this->input('photos'));
-        foreach(range(0, $photos) as $index) {
-            $rules['photos.' . $index] = 'image|mimes:jpeg,bmp,png|max:2000';
-        }
-
         return $rules;
+    }
+    public function messages()
+    {
+        return [
+            'filename.required' => 'name is required!',
+            'content.required' => 'content is required!'
+        ];
+    }
+    public function failedValidation(Validator $validator) {
+
+        throw new HttpResponseException(response()->json(
+            [
+                'status' => 422,
+                'error' => [
+                    'message' => $validator->messages()->first(),
+                    'error' => $validator->errors()
+                ],
+            ]
+            , 400));
     }
 }

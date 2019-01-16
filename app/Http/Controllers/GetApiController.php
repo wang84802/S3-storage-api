@@ -2,51 +2,40 @@
 
 namespace App\Http\Controllers;
 
-
 use App\File;
 use Illuminate\Http\Request;
-use App\Repositories\UserRepository;
+use JWTAuth;
+use Tymon\JWTAuth\Exceptions\JWTException;
 use App\Repositories\FileRepository;
-use Psr\Log\NullLogger;
 
 class GetApiController extends Controller
 {
     protected $userRepository,$fileRepository;
-    public function __construct(UserRepository $userRepository,FileRepository $fileRepository)
+    public function __construct(FileRepository $fileRepository)
     {
         $this->fileRepository = $fileRepository;
-        $this->userRepository = $userRepository;
     }
     public function show()
     {
-        return $this->fileRepository->Show();
+        $user = JWTAuth::parseToken()->authenticate();
+        return $this->fileRepository->Show($user->name);
     }
     public function search(Request $request)
     {
         $search = $request->input('string');
-        if($search == NUll)
-            return response()->json(['message' => 'String is required.'],400);
+        if ($search == null) {
+            return response()->json(['message' => 'String is required.'], 400);
+        }
         $files = $this->fileRepository->Search($search);
-        if($files->get()=="[]")
-            return response()->json(['message' => 'No matches.'],404);
-        else
-            return $files->simplepaginate(10);
+        if ($files->get() == "[]") {
+            return response()->json(['message' => 'No matches.'], 404);
+        } else {
+            $perPage = 1; //elements of one page
+            $columns = ['*'];
+            $pageName = 'page';
+            $currentPage = (string)('1'); // page number
+            return $files->simplepaginate($perPage, $columns, $pageName, $currentPage)->appends(['string'=>$search]);
+            //return $files->simplepaginate(10);
+        }
     }
-    public function recycle_bin()
-    {
-        return $this->fileRepository->RecycleBin();
-    }
-    public function updated_at(){
-        $files = File::orderBy('updated_at','asc')->simplepaginate(10);
-        return $files;
-    }
-    public function filename(){
-        $files = File::orderBy('name','asc')->simplepaginate(10);
-        return $files;
-    }
-    public function size(){
-        $files = File::orderBy('size','asc')->simplepaginate(10);
-        return $files;
-    }
-
 }

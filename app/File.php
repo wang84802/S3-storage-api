@@ -11,9 +11,10 @@ class File extends Model
 
     protected $data = ['deleted_at'];
     protected $fillable = [
+        'id',
         'name',
-        'extension',
         'size',
+        'uni_id',
         'created_by',
         'updated_by',
         'updated_at',

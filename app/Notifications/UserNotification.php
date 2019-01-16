@@ -41,8 +41,8 @@ class UserNotification extends Notification
     public function toSlack($notifiable)
     {
         return (new SlackMessage)
-            ->from('https://hooks.slack.com/services/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')
-            ->to(env('SLACK_CHANNEL2'))
+            ->from('https://hooks.slack.com/services/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')
+            ->to('storage-api')
             ->attachment(function ($attachment) {
                 $attachment->title($this->message)
                     ->fields([

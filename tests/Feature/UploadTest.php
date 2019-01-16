@@ -5,9 +5,7 @@ namespace Tests\Feature;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\User;
-use App\File;
-use App\Jobs\test_upload;
+use App\Jobs\TestUpload;
 use Storage;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Queue;
@@ -28,15 +26,18 @@ class UploadTest extends TestCase
 
     public function testOrderShipping()
     {
+
         Queue::fake();
+//        Queue::assertPushed(CallQueuedListener::class, function ($job){});
         $data = '{
 	        "data": [
-                
+
             ]
         }';
         $api = '';
-        dispatch(new test_upload($data,$api));
-
-        Queue::assertPushed(test_upload::class);
+        dispatch(new TestUpload($data,$api));
+//
+        //Queue::assertNotPushed(Dispatcher::class);
+        $this->expectsJobs(TestUpload::class);
     }
 }
