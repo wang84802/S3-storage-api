@@ -27,23 +27,27 @@ class DownloadRequest extends FormRequest
     public function rules()
     {
         $rules = [
-            'data.uni_id' => 'required',
+            'data.uni_id' => 'required|regex:/^[\w\d]+$/',
         ];
         return $rules;
     }
-    public function messages()
-    {
-        return [
-            'uni_id.required' => 'uni_id is required!',
-        ];
-    }
     public function failedValidation(Validator $validator)
     {
+        //$$validator->failed() -> $errors
+        //$validator->errors()->messages() -> $messages
+        $errors = $validator->failed();
+        $keyname = key($errors);
+        $serviceCode = config('error_code.service_code');
+        $errorCode = array_merge(config('error_code.custom'),
+            config('error_code.base'));
+        Log::info($validator->messages()->first());
         throw new HttpResponseException(response()->json(
             [
-                'status' => 422,
+                'status' => 400,
                 'error' => [
-                    'message' => $validator->errors()
+                    'code' => "400{$serviceCode}{$errorCode[snake_case(key(array_first($errors)))]}",
+                    'key' => $keyname,
+                    'message' => $validator->messages()->first()
                 ],
             ]
             , 400));

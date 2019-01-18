@@ -19,15 +19,15 @@ use Log;
 class TestUpload implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-    public $data;
+    public $filename;
     public $uni_id;
     public $api_token;
     public $username;
 
-    public function __construct($uni_id,$data,$username,$api_token)
+    public function __construct($uni_id,$filename,$username,$api_token)
     {
         $this->uni_id = $uni_id;
-        $this->data = $data;
+        $this->filename = $filename;
         $this->username = $username;
         $this->api_token = $api_token;
     }
@@ -39,10 +39,10 @@ class TestUpload implements ShouldQueue
         $seq_id = $SeqRepository->Generate_seq('select','currval_storage(1,1)');
 
         $username = $this->username;
-
-        $FileName = $this->data['filename'];
-        $content = $this->data['content'];
-        Storage::disk('local')->put('Upload_Pool/'.$this->uni_id, base64_decode($content));//put in pool
+        $FileName = $this->filename;
+        //$FileName = $this->data['filename'];
+        //$content = $this->data['content'];
+        //Storage::disk('local')->put('Upload_Pool/'.$this->uni_id, base64_decode($content));//put in pool
         $content_local = Storage::disk('local')->get('Upload_Pool/'.$this->uni_id);//get from pool
 
         $this->Upload_S3($this->uni_id, $content_local);//put in S3

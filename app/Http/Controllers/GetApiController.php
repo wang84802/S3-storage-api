@@ -29,13 +29,7 @@ class GetApiController extends Controller
         $files = $this->fileRepository->Search($search);
         if ($files->get() == "[]") {
             return response()->json(['message' => 'No matches.'], 404);
-        } else {
-            $perPage = 1; //elements of one page
-            $columns = ['*'];
-            $pageName = 'page';
-            $currentPage = (string)('1'); // page number
-            return $files->simplepaginate($perPage, $columns, $pageName, $currentPage)->appends(['string'=>$search]);
-            //return $files->simplepaginate(10);
-        }
+        } else 
+            return $files->paginate(5)->appends(['string'=>$search]);
     }
 }

@@ -14,20 +14,12 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         'api_download',
         'api_upload',
-        'download',
         'rename',
         'delete',
-        'hard_delete',
-        'admin_create',
-        'search',
-        'zip',
-        'restore',
-        'Job_upload',
-        'Job_download',
-        'test',
+        'refresh',
         'UploadString',
         'TaskUpload',
         'TaskDownload',
-        'restore'
+
     ];
 }

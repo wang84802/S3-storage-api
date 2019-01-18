@@ -31,7 +31,9 @@ class taskController extends Controller
     /* Single Upload/Download  , Response with JSON */
     public function TestUpload(UploadRequest $request) // Upload v1 (api/TaskUpload call TestUpload)
     {
+        //$username = 'wang123';
         $username = JWTAuth::parseToken()->authenticate();
+        $username = $username->name;
 
         $validated = $request->validated();
         $StatusRepository = new StatusRepository();
@@ -47,7 +49,6 @@ class taskController extends Controller
         if($files_with_size>536870912) //512MB
             return response()->json(['status' => 503,'error' => ['message' => 'Server is Busy.']],500);
 
-
         $StatusRepository->Queue_processing();
         $array = array();
 
@@ -59,40 +60,43 @@ class taskController extends Controller
         $data = $request['data'];
         $filename =  $data['filename'];
         $uni_id = uniqid();
-        $job = (new TestUpload($uni_id,$data,$username->name,$api_token));
+        $content = $data['content'];
+        Storage::disk('local')->put('Upload_Pool/'.$uni_id,base64_decode($content));
+        $job = (new TestUpload($uni_id,$filename,$username,$api_token));
         app(Dispatcher::class)->dispatch($job);
 
-        while (1)
-        {
-            $end = microtime(true);
-            if($this->Storage_Exist('Upload_Pool/'.$uni_id))
-                if($this->Document_Exist($uni_id)!=NULL)// successful
-                    break;
-            else if($end-$start>5)
-            {
-                $timeout = true;
-                break;
-            }
-        }
-        if ($timeout == true && ($this->Document_Exist($uni_id) == NULL))
-        {
-            $has_error = true;
-            $array['data'] = array($filename => 'Upload failed.');
-        }
-        else if($FileRepostiory->File_Exist($data['filename']))
-        {
-            $document = $this->Document_Exist($uni_id);
-            $array['data'] = array('Status' => $document->file,'uni_id' => $uni_id);
-        }
+//        while (1)
+//        {
+//            $end = microtime(true);
+//            if($this->Storage_Exist('Upload_Pool/'.$uni_id))
+//                if($this->Document_Exist($uni_id)!=NULL)// successful
+//                    break;
+//            else if($end-$start>5)
+//            {
+//                $timeout = true;
+//                break;
+//            }
+//        }
+//        if ($timeout == true && ($this->Document_Exist($uni_id) == NULL))
+//        {
+//            $has_error = true;
+//            $array['data'] = array($filename => 'Upload failed.');
+//        }
+//        else if($FileRepostiory->File_Exist($data['filename']))
+//        {
+//            $document = $this->Document_Exist($uni_id);
+//            $array['data'] = array('status' => $document->file,'uni_id' => $uni_id);
+//        }
 
         $StatusRepository->Queue_Processed();
-        if($has_error)
+//        if($has_error)
+//        {
+//            $array['status'] = 504;
+//            return response()->json([$array],500);
+//        }
+//        else
         {
-            $array['status'] = 504;
-            return response()->json([$array],500);
-        }
-        else
-        {
+            $array['data'] = array('status' => $filename.' upload succeed.','uni_id' => $uni_id);
             $array['status'] = 200;
             return response()->json([$array],200);
         }

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Log;
+use App\Exceptions\ValidateException;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Contracts\Validation\Validator;
@@ -28,7 +29,7 @@ class UploadRequest extends FormRequest
     {
         $rules = [
             'data.filename' => 'required',
-            'data.content' => 'required'
+            'data.content' => 'required|regex:/^[\w\d=*]+$/'
         ];
         return $rules;
     }
@@ -41,12 +42,20 @@ class UploadRequest extends FormRequest
     }
     public function failedValidation(Validator $validator) {
 
+        $errors = $validator->failed();
+        //$validator->errors()->messages() -> $messages
+        $keyname = key($errors);
+        $serviceCode = config('error_code.service_code');
+        $errorCode = array_merge(config('error_code.custom'),
+            config('error_code.base'));
+
         throw new HttpResponseException(response()->json(
             [
-                'status' => 422,
+                'status' => 400,
                 'error' => [
-                    'message' => $validator->messages()->first(),
-                    'error' => $validator->errors()
+                    'code' => "400{$serviceCode}{$errorCode[snake_case(key(array_first($errors)))]}",
+                    'key' => $keyname,
+                    'message' => $validator->messages()->first()
                 ],
             ]
             , 400));

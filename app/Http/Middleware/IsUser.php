@@ -23,17 +23,12 @@ class IsUser
     public function handle($request, Closure $next)
     {
         $api = $request->header('Api-Token');
-        $status = $this->userRepository->getStatusByToken($api);
-        if($api==NULL)
+
+        $api_token = '123';
+        if($api !== $api_token)
             return response('Unauthenticated.', 401);
-        $users = User::where('api_token','=',$api)->get();
-        if($users=='[]') {
-            return response('Unauthenticated.', 401);
-        }
-        if($status=='logout')
-            return response('User is not login.',401);
-        else{
+        else
             return $next($request);
-        }
+
     }
 }

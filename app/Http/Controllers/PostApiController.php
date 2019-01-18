@@ -13,7 +13,8 @@ use App\Repositories\SeqRepository;
 use App\Repositories\UserRepository;
 use App\Repositories\FileRepository;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
+use JWTAuth;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 class PostApiController extends Controller
 {
@@ -22,6 +23,11 @@ class PostApiController extends Controller
     {
         $this->fileRepository = $fileRepository;
         $this->userRepository = $userRepository;
+    }
+    public function refresh(Request $request)
+    {
+        $token = JWTAuth::getToken();
+        $token = JWTAuth::refresh($token);
     }
     public function UploadString(Request $request)
     {
@@ -55,7 +61,6 @@ class PostApiController extends Controller
                         ],
                     ]
                     , 400);
-                //response($O_FileWithExtension[$j]." does not exist!",404);
         }
         for( $j = 0 ; $j <= $i ; $j++ ){ //update S3
             $this->fileRepository->Rename($uni_id[$j],$ReName[$j],now(),$username);
