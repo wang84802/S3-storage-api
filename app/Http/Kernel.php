@@ -62,6 +62,7 @@ class Kernel extends HttpKernel
         'test' => \App\Http\Middleware\test::class,
         'is_admin' => \App\Http\Middleware\IsAdmin::class,
         'is_user' => \App\Http\Middleware\IsUser::class,
+        'is_api' => \App\Http\Middleware\IsApi::class,
         'jwt.verify' => \App\Http\Middleware\JwtMiddleware::class,
     ];
 }

@@ -16,19 +16,19 @@ Route::post('reg', 'UserController@register');
 Route::post('log', 'UserController@authenticate');
 Route::get('open', 'DataController@open');
 
-Route::group(['middleware' => 'is_user'], function() {
-//    Route::post('TaskUpload','taskController@TestUpload');
-//    Route::post('TaskDownload','taskController@TestDownload');
-//    Route::post('rename','PostApiController@rename');
-//    Route::post('delete','PostApiController@delete');
-});
-
-Route::post('refresh','PostApiController@refresh');
-Route::group(['middleware' => ['jwt.verify']], function() {
+Route::group(['middleware' => 'is_api'], function() {
     Route::post('TaskUpload','taskController@TestUpload');
     Route::post('TaskDownload','taskController@TestDownload');
     Route::post('rename','PostApiController@rename');
     Route::post('delete','PostApiController@delete');
+});
+
+Route::post('refresh','PostApiController@refresh');
+Route::group(['middleware' => ['jwt.verify']], function() {
+//    Route::post('TaskUpload','taskController@TestUpload');
+//    Route::post('TaskDownload','taskController@TestDownload');
+//    Route::post('rename','PostApiController@rename');
+//    Route::post('delete','PostApiController@delete');
     Route::get('closed', 'DataController@closed');
     Route::get('user', 'UserController@getAuthenticatedUser');
     //Route::get('show1','GetApiController@show');

@@ -29,7 +29,8 @@ class UploadRequest extends FormRequest
     {
         $rules = [
             'data.filename' => 'required',
-            'data.content' => 'required|regex:/^[\w\d=*]+$/'
+            'data.content' => 'required|regex:/^([a-zA-Z\d]{4})*([a-zA-Z\d]{3}[=+\/]{1})?([a-zA-Z\d]{2}[=]{2})?$/'
+            //'data.content' => 'required|regex:/^([a-zA-Z\d]{4})*([a-zA-Z\d]{3}=+\/)?$/'
         ];
         return $rules;
     }
