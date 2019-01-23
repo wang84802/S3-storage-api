@@ -69,6 +69,7 @@ return [
     'present'              => 'The :attribute field must be present.',
     //'regex'                => 'The :attribute formatUserStoreRequest is invalid.',
     'regex'                => 'The :attribute field is invalid.',
+    //'required'             => 'The :attribute field is required.',
     'required'             => 'The :attribute field is required.',
     'required_if'          => 'The :attribute field is required when :other is :value.',
     'required_unless'      => 'The :attribute field is required unless :other is in :values.',
@@ -101,8 +102,9 @@ return [
     */
 
     'custom' => [
-        'attribute-name' => [
-            'rule-name' => 'custom-message',
+        'data.uni_id' => [
+            'required' => 'The data.uni_id field is required.',
+            'regex' => 'The data.uni_id field is invalid.'
         ],
     ],
 

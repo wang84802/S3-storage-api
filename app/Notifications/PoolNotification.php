@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use Log;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -17,10 +18,11 @@ class PoolNotification extends Notification
      *
      * @return void
      */
-    public function __construct($message,$size)
+    public function __construct($message,$size,$uni_id)
     {
         $this->message = $message;
         $this->size = $size;
+        $this->uni_id = $uni_id;
     }
 
     /**
@@ -50,7 +52,8 @@ class PoolNotification extends Notification
             ->attachment(function ($attachment) {
                 $attachment->title($this->message)
                     ->fields([
-                        'Current Size' => $this->size,
+                        'uni_id' => $this->uni_id,
+                        'current Size' => $this->size,
                     ]);
             });
     }

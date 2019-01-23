@@ -3,11 +3,13 @@
 namespace App\Http\Requests;
 
 use Log;
+use App\Exceptions\ValidateException;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
-class DownloadRequest extends FormRequest
+
+class RenameRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -28,25 +30,27 @@ class DownloadRequest extends FormRequest
     {
         $rules = [
             'data.uni_id' => 'required|regex:/^[\w\d]+$/',
+            'data.rename' => 'required'
+            //'data.content' => 'required|regex:/^([a-zA-Z\d]{4})*([a-zA-Z\d]{3}=+\/)?$/'
         ];
         return $rules;
     }
-    public function failedValidation(Validator $validator)
-    {
-        //$$validator->failed() -> $errors
-        //$validator->errors()->messages() -> $messages
+    public function failedValidation(Validator $validator) {
+
         $errors = $validator->failed();
+        //$validator->errors()->messages() -> $messages
         $keyname = key($errors);
         $serviceCode = config('error_code.service_code');
         $errorCode = array_merge(config('error_code.custom'),
             config('error_code.base'));
+
         throw new HttpResponseException(response()->json(
             [
                 'status' => 400,
                 'error' => [
                     'code' => "400{$serviceCode}{$errorCode[snake_case(key(array_first($errors)))]}",
                     'key' => $keyname,
-                    'message' => $validator->errors()->first()
+                    'message' => $validator->messages()->first()
                 ],
             ]
             , 400));

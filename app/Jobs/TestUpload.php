@@ -12,9 +12,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Presenters\FilePresenter;
 use App\Repositories\SeqRepository;
-use JWTAuth;
+use App\Repositories\FileRepository;
 use Tymon\JWTAuth\Exceptions\JWTException;
-use Log;
 
 class TestUpload implements ShouldQueue
 {
@@ -22,13 +21,13 @@ class TestUpload implements ShouldQueue
     public $filename;
     public $uni_id;
     public $api_token;
-    public $username;
+    public $servicename;
 
-    public function __construct($uni_id,$filename,$username,$api_token)
+    public function __construct($uni_id,$filename,$servicename,$api_token)
     {
         $this->uni_id = $uni_id;
         $this->filename = $filename;
-        $this->username = $username;
+        $this->servicename = $servicename;
         $this->api_token = $api_token;
     }
 
@@ -36,24 +35,19 @@ class TestUpload implements ShouldQueue
     {
         $FilePresenter = new FilePresenter();
         $SeqRepository = new SeqRepository();
-        $seq_id = $SeqRepository->Generate_seq('select','currval_storage(1,1)');
-
-        $username = $this->username;
+        $FileRepository = new FileRepository();
+        
+        $file_seq_id = $SeqRepository->Generate_seq('select','currval_storage(1,1)'); //File ID
+        $document_seq_id = $SeqRepository->Generate_seq('select','currval_storage(2,1)'); //Document ID
+        $servicename = $this->servicename;
         $FileName = $this->filename;
-        //$FileName = $this->data['filename'];
-        //$content = $this->data['content'];
-        //Storage::disk('local')->put('Upload_Pool/'.$this->uni_id, base64_decode($content));//put in pool
-        $content_local = Storage::disk('local')->get('Upload_Pool/'.$this->uni_id);//get from pool
 
+        $content_local = Storage::disk('local')->get('Upload_Pool/'.$this->uni_id);//get from pool
         $this->Upload_S3($this->uni_id, $content_local);//put in S3
         $size = $FilePresenter->getsize($this->Get_Size($this->uni_id));//get size from S3
 
-        $this->Create_File($seq_id,$this->uni_id,$FileName,$size,$username);
-        $this->Create_Document($seq_id,$this->uni_id,$FileName,$username);
-    }
-    public function Get_UserName($api_token)
-    {
-        return User::where('api_token',$api_token)->value('name');
+        $FileRepository->Create_File($file_seq_id,$this->uni_id,$FileName,$size,$servicename);
+        $FileRepository->Create_Document($document_seq_id,$this->uni_id,'Upload '.$FileName.' succeed.',$servicename);
     }
     public function Upload_S3($filename,$content)
     {
@@ -62,25 +56,5 @@ class TestUpload implements ShouldQueue
     public function Get_Size($filename)
     {
         return Storage::disk('s3')->size($filename);
-    }
-    public function Create_File($seq_id,$uni_id,$name,$size,$username)
-    {
-        File::create([
-            'id' => $seq_id,
-            'uni_id' => $uni_id,
-            'name' => $name,
-            'size' => $size,
-            'created_by' => $username,
-            'updated_by' => $username,
-        ]);
-    }
-    public function Create_Document($seq_id,$uni_id,$FileName,$username)
-    {
-        Document::create([
-            'id' => $seq_id,
-            'uni_id' => $uni_id,
-            'file' => $FileName.' upload succeed.',
-            'created_by' => $username,
-        ]);
     }
 }

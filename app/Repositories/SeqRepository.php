@@ -1,10 +1,7 @@
 <?php
 namespace App\Repositories;
 
-use App\File;
 use Illuminate\Http\Request;
-
-
 class SeqRepository
 {
     public function Generate_seq($select,$query)

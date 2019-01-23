@@ -20,7 +20,7 @@ class FilePresenter
             $unit = 'GB';
         else if($divide_time==4)
             $unit = 'TB';
-        $size = number_format($size,1,'.','').' '.$unit;
+        $size = number_format($size,2,'.','').' '.$unit;
         return $size;
     }
 }
