@@ -29,9 +29,9 @@ class RenameRequest extends FormRequest
     public function rules()
     {
         $rules = [
-            'data.uni_id' => 'required|regex:/^[\w\d]+$/',
+            'data' => 'required',
+            'data.uni_id' => 'required',
             'data.rename' => 'required'
-            //'data.content' => 'required|regex:/^([a-zA-Z\d]{4})*([a-zA-Z\d]{3}=+\/)?$/'
         ];
         return $rules;
     }
@@ -47,11 +47,11 @@ class RenameRequest extends FormRequest
         throw new HttpResponseException(response()->json(
             [
                 'status' => 400,
-                'error' => [
-                    'code' => "400{$serviceCode}{$errorCode[snake_case(key(array_first($errors)))]}",
+                'error' => [[
                     'key' => $keyname,
+                    'code' => "400{$serviceCode}{$errorCode[snake_case(key(array_first($errors)))]}",
                     'message' => $validator->messages()->first()
-                ],
+                ]],
             ]
             , 400));
     }

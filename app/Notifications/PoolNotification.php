@@ -18,11 +18,11 @@ class PoolNotification extends Notification
      *
      * @return void
      */
-    public function __construct($message,$size,$uni_id)
+    public function __construct($message,$size)
     {
         $this->message = $message;
         $this->size = $size;
-        $this->uni_id = $uni_id;
+        //$this->uni_id = $uni_id;
     }
 
     /**
@@ -52,7 +52,7 @@ class PoolNotification extends Notification
             ->attachment(function ($attachment) {
                 $attachment->title($this->message)
                     ->fields([
-                        'uni_id' => $this->uni_id,
+                        //'uni_id' => $this->uni_id,
                         'current Size' => $this->size,
                     ]);
             });

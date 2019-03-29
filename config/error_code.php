@@ -9,6 +9,8 @@ return [
     'exception_token_not_provider' => '9101',
     'exception_has_not_permission' => '9102',
     'exception_token_overtime'     => '9103',
+    'uni_id_not_exist'             => '9104',
+    'server_busy'                  => '9105',
 
     'base' => [
         'accepted'   => '9000',

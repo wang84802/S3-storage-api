@@ -27,7 +27,8 @@ class DownloadRequest extends FormRequest
     public function rules()
     {
         $rules = [
-            'data.uni_id' => 'required|regex:/^[\w\d]+$/',
+            'data' => 'required',
+            'data.uni_id' => 'required|exists:files,uni_id,deleted_at,NULL',
         ];
         return $rules;
     }
@@ -37,17 +38,18 @@ class DownloadRequest extends FormRequest
         //$validator->errors()->messages() -> $messages
         $errors = $validator->failed();
         $keyname = key($errors);
+
         $serviceCode = config('error_code.service_code');
         $errorCode = array_merge(config('error_code.custom'),
             config('error_code.base'));
         throw new HttpResponseException(response()->json(
             [
                 'status' => 400,
-                'error' => [
-                    'code' => "400{$serviceCode}{$errorCode[snake_case(key(array_first($errors)))]}",
+                'error' => [[
                     'key' => $keyname,
+                    'code' => "400{$serviceCode}{$errorCode[snake_case(key(array_first($errors)))]}",
                     'message' => $validator->errors()->first()
-                ],
+                ]],
             ]
             , 400));
     }

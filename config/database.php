@@ -13,8 +13,8 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'mysql'),
-
+    //'default' => env('DB_CONNECTION', 'mysql'),
+    'default' => 'mysql',
     /*
     |--------------------------------------------------------------------------
     | Database Connections
@@ -39,28 +39,28 @@ return [
             'prefix' => '',
         ],
 
-        'mysql' => [
+        'seq_db' => [
             'driver' => 'mysql',
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'forge'),
-            'username' => env('DB_USERNAME', 'forge'),
-            'password' => env('DB_PASSWORD', ''),
+            'host' => env('DB_DEV_HOST', '127.0.0.1'),
+            'port' => env('DB_DEV_PORT', '3306'),
+            'database' => env('DB_DEV_DATABASE', 'forge'),
+            'username' => env('DB_DEV_USERNAME', 'forge'),
+            'password' => env('DB_DEV_PASSWORD', ''),
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',
-            'strict' => true,
+            'strict' => false,
             'engine' => null,
         ],
 
-        'mysql2' => [
-            'driver' => 'mysql',
-            'host' => env('DB_HOST_SECOND', '127.0.0.1'),
-            'port' => env('DB_PORT_SECOND', '3306'),
-            'database' => env('DB_DATABASE_SECOND', 'forge'),
-            'username' => env('DB_USERNAME_SECOND', 'forge'),
-            'password' => env('DB_PASSWORD_SECOND', ''),
+        'mysql' => [
+            'driver' => env('DB_CONNECTION'),
+            'host' => env('DB_HOST'),
+            'port' => env('DB_PORT'),
+            'database' => env('DB_DATABASE', 'forge'),
+            'username' => env('DB_USERNAME', 'forge'),
+            'password' => env('DB_PASSWORD', 'forge'),
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',

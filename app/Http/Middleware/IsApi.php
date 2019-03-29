@@ -2,9 +2,8 @@
 
 namespace App\Http\Middleware;
 
-use Closure;
-use App\User;
 use DB;
+use Closure;
 use App\Repositories\UserRepository;
 
 class IsApi
@@ -26,10 +25,12 @@ class IsApi
         {
             return response()->json(
             [
-                'status' => 401,
-                'error' => [
-                    'message' => 'Unauthorized.'
-                ],
+                'status' => 400,
+                'error' => [[
+                    'key' => 'Api-Token',
+                    'code' => '400049100',
+                    'message' => 'Api-Token is unauthorized.'
+                ]],
             ]
             ,401);
         }

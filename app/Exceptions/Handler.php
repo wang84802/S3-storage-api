@@ -3,6 +3,10 @@
 namespace App\Exceptions;
 
 use Exception;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler
@@ -13,7 +17,7 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
-        //
+        FailedException::class,
     ];
 
     /**
@@ -36,6 +40,7 @@ class Handler extends ExceptionHandler
      */
     public function report(Exception $exception)
     {
+
         parent::report($exception);
     }
 
@@ -46,14 +51,12 @@ class Handler extends ExceptionHandler
      * @param  \Exception  $exception
      * @return \Illuminate\Http\Response
      */
-    public function render($request, Exception $exception)
+    public function render($request, Exception $e)
     {
-        if ($exception instanceof ModelNotFoundException) {
-            return response()->json([
-                'error' => 'Resource not found'
-            ], 404);
+        if ($e instanceof BaseException) {
+            return $e->report();
         }
 
-        return parent::render($request, $exception);
+        return parent::render($request, $e);
     }
 }

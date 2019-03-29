@@ -27,11 +27,12 @@ class UploadRequest extends FormRequest
      */
     public function rules()
     {
-        $rules = [
+        $rules = array(
+            'data' => 'required',
             'data.filename' => 'required',
-            'data.content' => 'required|regex:/^([a-zA-Z\d]{4})*([a-zA-Z\d]{3}[=+\/]{1})?([a-zA-Z\d]{2}[=]{2})?$/'
-            //'data.content' => 'required|regex:/^([a-zA-Z\d]{4})*([a-zA-Z\d]{3}=+\/)?$/'
-        ];
+            'data.content' => 'required'
+            //'data.content' => array('required','regex:/^([A-Za-z0-9\+=\/])*$/')
+        );
         return $rules;
     }
     public function messages()
@@ -53,11 +54,11 @@ class UploadRequest extends FormRequest
         throw new HttpResponseException(response()->json(
             [
                 'status' => 400,
-                'error' => [
-                    'code' => "400{$serviceCode}{$errorCode[snake_case(key(array_first($errors)))]}",
+                'error' => [[
                     'key' => $keyname,
+                    'code' => "400{$serviceCode}{$errorCode[snake_case(key(array_first($errors)))]}",
                     'message' => $validator->messages()->first()
-                ],
+                ]],
             ]
             , 400));
     }

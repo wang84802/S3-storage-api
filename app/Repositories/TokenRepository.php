@@ -2,7 +2,6 @@
 namespace App\Repositories;
 
 use DB;
-use Illuminate\Http\Request;
 
 class TokenRepository
 {

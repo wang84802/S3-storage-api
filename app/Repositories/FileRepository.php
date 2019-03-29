@@ -38,15 +38,6 @@ class FileRepository
         return File::where('uni_id',$uni_id)->where('name',$filename)
             ->update(array('updated_by' => $name));
     }
-    public function Create_Document($seq_id,$uni_id,$status,$username)
-    {
-        Document::create([
-            'id' => $seq_id,
-            'uni_id' => $uni_id,
-            'file' => $status,
-            'created_by' => $username
-        ]);
-    }
     public function Create_File($seq_id,$uni_id,$name,$size,$username)
     {
         File::create([
@@ -59,14 +50,28 @@ class FileRepository
         ]);
     }
 
+    public function Create_Document($seq_id,$uni_id,$status,$username)
+    {
+        Document::create([
+            'id' => $seq_id,
+            'uni_id' => $uni_id,
+            'file' => $status,
+            'created_by' => $username
+        ]);
+    }
+
+    public function Document_Exist($uni_id)
+    {
+        return Document::where('uni_id',$uni_id)->first();
+    }
 
     /*not use*/
     public function GetFileOnlyTrashed($filename)
-{
-    return File::onlyTrashed()
-        ->where('name',$filename)
-        ->get();
-}
+    {
+        return File::onlyTrashed()
+            ->where('name',$filename)
+            ->get();
+    }
     public function Search($search)
     {
         return File::where('name','like','%'.$search.'%');

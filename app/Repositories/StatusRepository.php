@@ -2,9 +2,6 @@
 namespace App\Repositories;
 
 use DB;
-use App\File;
-use Illuminate\Http\Request;
-use App\Presenters\FilePresenter;
 
 class StatusRepository
 {

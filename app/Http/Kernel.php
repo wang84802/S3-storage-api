@@ -39,7 +39,7 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            'throttle:60,1',
+            'throttle:200,1',
             'bindings',
             \Barryvdh\Cors\HandleCors::class,
         ],
@@ -59,9 +59,6 @@ class Kernel extends HttpKernel
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
-        'test' => \App\Http\Middleware\test::class,
-        'is_admin' => \App\Http\Middleware\IsAdmin::class,
-        'is_user' => \App\Http\Middleware\IsUser::class,
         'is_api' => \App\Http\Middleware\IsApi::class,
         'jwt.verify' => \App\Http\Middleware\JwtMiddleware::class,
     ];

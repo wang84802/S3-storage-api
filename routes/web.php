@@ -14,12 +14,12 @@ use App\File;
 
 //use DB;
 
-Route::middleware('is_admin')->post('/admin_create','CreateUserController@create');
+//Route::middleware('is_admin')->post('/admin_create','CreateUserController@create');
 
 Route::get('/', function () {
     return view('welcome');
 });
-//API User
-Route::post('test','PostApiController@test');
+
 Route::post('UploadString','PostApiController@UploadString');
+
 
