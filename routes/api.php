@@ -14,11 +14,12 @@ use App\File;
 */
 
 Route::group(['middleware' => 'is_api'], function() {
-    Route::post('TaskUpload','taskController@TestUpload');
-    Route::post('TaskDownload','taskController@TestDownload');
+    Route::post('TaskUpload','taskController@TaskUpload');
+    Route::post('TaskDownload','taskController@TaskDownload');
     Route::post('BulkDownload','taskController@BulkDownload');
-    Route::post('rename','PostApiController@rename');
-    Route::post('delete','PostApiController@delete');
+    Route::post('rename','PostApiController@Rename');
+    Route::post('delete','PostApiController@Delete');
+    Route::post('Bulkdelete','PostApiController@Bulkdelete');
 });
 
 //    Route::post('TaskUpload','taskController@TestUpload');

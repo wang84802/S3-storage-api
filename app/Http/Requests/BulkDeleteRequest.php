@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Contracts\Validation\Validator;
 
-class BulkDownloadRequest extends FormRequest
+class BulkDeleteRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,7 +27,7 @@ class BulkDownloadRequest extends FormRequest
     {
         $rules = [
             'data' => 'required',
-            'data.*.uni_id' => 'required',   //|exists:files,uni_id,deleted_at,NULL'
+            'data.*.uni_id' => 'required|distinct',
         ];
         return $rules;
     }

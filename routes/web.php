@@ -20,6 +20,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::post('UploadString','PostApiController@UploadString');
+Route::post('test','PostApiController@test');
+Route::post('hello','PostApiController@hello');
 
 

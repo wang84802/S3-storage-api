@@ -3,19 +3,16 @@
 namespace App\Jobs;
 
 use Log;
-use App\User;
-use App\File;
-use App\Document;
 use Storage;
+use App\Presenters\FilePresenter;
+use App\Repositories\SeqRepository;
+use App\Repositories\FileRepository;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use App\Presenters\FilePresenter;
-use App\Repositories\SeqRepository;
-use App\Repositories\FileRepository;
-use Tymon\JWTAuth\Exceptions\JWTException;
+
 
 class TestUpload implements ShouldQueue
 {
@@ -33,46 +30,26 @@ class TestUpload implements ShouldQueue
 
     public function handle()
     {
-        Log::info(now());
+        Log::info('upload test');
         $FilePresenter = new FilePresenter();
         $SeqRepository = new SeqRepository();
         $FileRepository = new FileRepository();
-
 
         $file_seq_id = $SeqRepository->Generate_seq(1); //File ID
         $document_seq_id = $SeqRepository->Generate_seq(2); //Document ID
         $servicename = $this->servicename;
         $FileName = $this->filename;
 
-        Storage::disk('local')->put('Upload_Pool/'.$this->uni_id,base64_decode($this->content)); //(not working)
+        Storage::disk('local')->put('Upload_Pool/'.$this->uni_id,base64_decode($this->content));
         $content_local = Storage::disk('local')->get('Upload_Pool/'.$this->uni_id);//get from pool
         $this->Upload_S3($this->uni_id, $content_local);//put in S3
-        //$this->Upload_S3($this->uni_id, base64_decode($this->content));//put in S3
         $size = $FilePresenter->getsize($this->Get_Size($this->uni_id));//get size from S3
 
-        if($this->Exist_Local($this->uni_id))
-        {
+        if($this->Exist_Local($this->uni_id)) {
             $FileRepository->Create_Document($document_seq_id,$this->uni_id,'UAT Upload '.$FileName.' succeed.',$servicename);
             $FileRepository->Create_File($file_seq_id,$this->uni_id,$FileName,$size,$servicename,$servicename);
-        }
-        else
+        } else
             $FileRepository->Create_Document($document_seq_id,$this->uni_id,'Upload failed!',$servicename);
-//        File::create([
-//            'id' => $file_seq_id,
-//            'uni_id' => $this->uni_id,
-//            'name' => $FileName,
-//            'size' => $size,
-//            'created_by' => $servicename,
-//            'updated_by' => $servicename,
-//        ]);
-//
-//        Document::create([
-//            'id' => $document_seq_id,
-//            'uni_id' => $this->uni_id,
-//            'file' => 'Upload '.$FileName.' succeed.',
-//            'created_by' => $servicename
-//        ]);
-
     }
     private function Exist_Local($uni_id)
     {

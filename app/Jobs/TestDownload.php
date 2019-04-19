@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use Log;
 use Storage;
 use App\Document;
 use App\Jobs\Job;
@@ -34,12 +33,9 @@ class TestDownload implements ShouldQueue
         $filename = $this->name;
         $servicename = $this->servicename;
         $document_seq_id = $SeqRepository->Generate_seq(2); //Document ID
-        Log::info('Download');
         if($this->Exist_S3($this->uni_id))
         {
-            Log::info("download test");
             $content = $this->Get_Content($this->uni_id); //get file from S3
-            Log::info(base64_encode($content));
             Storage::disk('local')->put('Download_Pool/'.$this->uni_id,$content); // put into Download pool
         }
         if($this->Exist_Local($this->uni_id))

@@ -11,6 +11,8 @@ return [
     'exception_token_overtime'     => '9103',
     'uni_id_not_exist'             => '9104',
     'server_busy'                  => '9105',
+    'upload_failed'                => '9106',
+    'download_failed'              => '9107',
 
     'base' => [
         'accepted'   => '9000',

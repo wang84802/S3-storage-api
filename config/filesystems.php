@@ -60,8 +60,10 @@ return [
             'key' => 'AKIAJF7ETE2TDEDPSCQA',
             'secret' => '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',
             'region' => 'ap-southeast-1',
-            'bucket' => 'chris-storage-api',
+            'bucket' => 'prd-storage',
         ],
+
+
 
     ],
 

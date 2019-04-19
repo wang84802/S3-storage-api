@@ -30,7 +30,7 @@ class RenameRequest extends FormRequest
     {
         $rules = [
             'data' => 'required',
-            'data.uni_id' => 'required',
+            'data.uni_id' => 'required|exists:files,uni_id,deleted_at,NULL',
             'data.rename' => 'required'
         ];
         return $rules;
