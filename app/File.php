@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class File extends Model
 {
     use SoftDeletes;
-
+    protected $primaryKey = 'id';
+    public $incrementing = false;
+    
     protected $data = ['deleted_at'];
     protected $fillable = [
         'id',

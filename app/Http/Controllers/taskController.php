@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Log;
 use Storage;
-use App\Jobs\TestUpload;
-use App\Jobs\TestDownload;
+use App\Jobs\UatUpload;
+use App\Jobs\UatDownload;
 use App\Examiners\Examiner;
 use App\Repositories\FileRepository;
 use App\Repositories\TokenRepository;
@@ -26,8 +27,10 @@ class taskController extends Controller
     }
 
     /* Single Upload/Download  , Response with JSON */
-    public function TaskUpload(UploadRequest $request) // Upload v1 (api/TaskUpload call TestUpload)
+    public function TestUpload(UploadRequest $request) // Upload v1 (api/TaskUpload call TestUpload)
     {
+//        $a = microtime();
+//        Log::info($a);
         Examiner::ServerBusy('Upload_Pool');
         $uni_id = uniqid();
         $servicename = $this->tokenRepository->GetServicebyToken($request->header('Api-Token'));
@@ -39,7 +42,7 @@ class taskController extends Controller
 
         $this->statusRepository->Queue_processing();
         $start = microtime(true);
-        $job = (new TestUpload($uni_id,$filename,$servicename,$api_token,$content));
+        $job = (new UatUpload($uni_id,$filename,$servicename,$api_token,$content));
         app(Dispatcher::class)->dispatch($job);
 
         $timeout = Examiner::JobCheck($start,$uni_id,'Upload_Pool');
@@ -47,16 +50,17 @@ class taskController extends Controller
         $this->statusRepository->Queue_processed();
         if ($timeout == true) {
             $array['status'] = 400;
-            $array['error'] = array(['key' => 'Upload','code'=>'400049106','message'=>'The '.$filename.'upload failed.']);
+            $array['error'] = array(['key' => 'Upload','code'=>'400049106','message'=>'The '.$filename.' upload failed.']);
             return response()->json($array, 400);
         } else {
             $array['status'] = 200;
             $array['data'] = array('status' => 'Upload '.$filename.' succeed.','uni_id' => $uni_id);
+//            $b = microtime();
+//            Log::info($b);
             return $array;
         }
     }
-
-    public function TaskDownload(DownloadRequest $request)// Download v1 (api/TaskDownload call TestDownload)
+    public function TestDownload(DownloadRequest $request)// Download v1 (api/TaskDownload call TestDownload)
     {
         Examiner::ServerBusy('Download_Pool');
         $uni_id = $request->data['uni_id'];
@@ -65,7 +69,7 @@ class taskController extends Controller
 
         $this->statusRepository->Queue_processing();
         $start = microtime(true);
-        $job = (new TestDownload($uni_id,$filename,$servicename));
+        $job = (new UatDownload($uni_id,$filename,$servicename));
         app(Dispatcher::class)->dispatch($job);
 
         $timeout = Examiner::JobCheck($start,$uni_id,'Download_Pool');
@@ -77,7 +81,7 @@ class taskController extends Controller
             return response()->json($array, 400);
         } else {
             $array['status'] = 200;
-            $array['data'] = array($filename => base64_encode(Storage::disk('local')->get('Download_Pool/'.$uni_id)));
+            $array['data'] = array('status' => 200,$filename => base64_encode(Storage::disk('local')->get('Download_Pool/'.$uni_id)));
             return $array;
         }
     }
@@ -85,7 +89,7 @@ class taskController extends Controller
     {
         Examiner::ServerBusy('Download_Pool');
         set_time_limit(0);
-        $array = ['status' => 400,'data' => array(),'error' => array()];
+        $array = ['status' => 200,'data' => array(),'error' => array()];
         $servicename = $this->tokenRepository->GetServicebyToken($request->header('Api-Token'));
 
         //foreach($Data as $data) {
@@ -101,7 +105,7 @@ class taskController extends Controller
             $filename = $this->fileRepository->GetFileNamebyUniid($uni_id);
             $this->statusRepository->Queue_processing();
             $start = microtime(true);
-            $job = (new TestDownload($uni_id,$filename,$servicename));
+            $job = (new UatDownload($uni_id,$filename,$servicename));
             app(Dispatcher::class)->dispatch($job);
 
             $timeout = Examiner::JobCheck($start,$uni_id,'Download_Pool');

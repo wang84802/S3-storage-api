@@ -14,8 +14,9 @@ use App\File;
 */
 
 Route::group(['middleware' => 'is_api'], function() {
-    Route::post('TaskUpload','taskController@TaskUpload');
-    Route::post('TaskDownload','taskController@TaskDownload');
+    Route::post('TaskUpload','taskController@TestUpload');
+    Route::post('Task2Upload','taskController@Test2Upload');
+    Route::post('TaskDownload','taskController@TestDownload');
     Route::post('BulkDownload','taskController@BulkDownload');
     Route::post('rename','PostApiController@Rename');
     Route::post('delete','PostApiController@Delete');

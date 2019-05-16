@@ -57,13 +57,11 @@ return [
 
         's3' => [
             'driver' => 's3',
-            'key' => 'AKIAJF7ETE2TDEDPSCQA',
-            'secret' => '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',
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
             'region' => 'ap-southeast-1',
-            'bucket' => 'prd-storage',
+            'bucket' => env('AWS_BUCKET'),
         ],
-
-
 
     ],
 

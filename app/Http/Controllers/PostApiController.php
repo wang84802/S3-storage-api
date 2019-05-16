@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use DB;
+use Log;
 use Storage;
 use GuzzleHttp\Client;
+use App\Jobs\UatUpload;
+use App\Jobs\SeqJob;
+use App\Jobs\UatDownload;
 use App\Examiners\Examiner;
 use Illuminate\Http\Request;
+use Illuminate\Contracts\Bus\Dispatcher;
 use App\Repositories\SeqRepository;
 use App\Repositories\UserRepository;
 use App\Repositories\FileRepository;
@@ -18,6 +22,7 @@ use App\Http\Requests\BulkDownloadRequest;
 
 class PostApiController extends Controller
 {
+
     public function __construct(TokenRepository $TokenRepository,FileRepository $fileRepository,SeqRepository $SeqRepository)
     {
         $this->fileRepository = $fileRepository;
@@ -26,13 +31,24 @@ class PostApiController extends Controller
     }
     public function test(Request $request)
     {
-        $client = new \GuzzleHttp\Client();
-        $response = $client->request('POST', 'http://localhost/hello', [
+        $SeqRepository = new SeqRepository();
+        return $SeqRepository->Generate_seq(2);
 
-        ]);
-        $response = $response->getBody()->getContents();
-        
-        print_r($response);
+//        $a = range(1, 100);
+//        //Storage::disk('local')->put('Upload_Pool/'.'123.txt','123');
+//        foreach($a as $i){
+//            $job = (new SeqJob());
+//            app(Dispatcher::class)->dispatch($job);
+//        }
+
+        //return Storage::disk('s3')->put('123.txt','12333');
+//        $client = new \GuzzleHttp\Client();
+//        $response = $client->request('POST', 'http://localhost/hello', [
+//
+//        ]);
+//        $response = $response->getBody()->getContents();
+//
+//        print_r($response);
 
         //$request = new Request('GET', 'http://httpbin.org/get');
 
@@ -84,18 +100,10 @@ class PostApiController extends Controller
 
     public function hello(Request $request)
     {
-        $this->Upload_S3("123.txt", "Hello");
-        Storage::disk('local')->put('Upload_Pool/'.'123',base64_decode(123));
-        return 1;
-        return DB::table('queue_status')->where('id',1)->update(['status'=>'processing']);
         return $this->F(5);
         $a = $request->data;
 
         return $this->hello_re($a,0,0);
-    }
-    public function Upload_S3($filename,$content)
-    {
-        Storage::disk('s3')->put($filename,$content);
     }
 
     private function hello_re($array,$column,$row) //$a 3 4

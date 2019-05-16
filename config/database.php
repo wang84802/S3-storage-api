@@ -130,6 +130,13 @@ return [
             'database' => 0,
         ],
 
+        'seq_db' => [
+            'host' => env('SEQ_REDIS_HOST', '127.0.0.1'),
+            'password' => env('SEQ_REDIS_PASSWORD', null),
+            'port' => env('SEQ_REDIS_PORT', 6379),
+            'database' => 0,
+        ],
+
     ],
 
 ];
