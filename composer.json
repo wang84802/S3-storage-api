@@ -7,6 +7,7 @@
     "require": {
         "php": ">=7.0.0",
         "aftership/aftership-php-sdk": "^5.1",
+        "aws/aws-sdk-php-laravel": "3.0",
         "barryvdh/laravel-cors": "^0.11.2",
         "chumper/zipper": "^1.0",
         "fideloper/proxy": "~3.3",

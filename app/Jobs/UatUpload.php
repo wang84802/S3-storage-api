@@ -50,7 +50,11 @@ class UatUpload implements ShouldQueue
             $FileRepository->Create_File($file_seq_id,$this->uni_id,$FileName,$size,$servicename,$servicename);
         } else
             $FileRepository->Create_Document($document_seq_id,$this->uni_id,'Upload failed!',$servicename);
+
+
     }
+
+
     private function Exist_Local($uni_id)
     {
         return Storage::disk('local')->exists('Upload_Pool/'.$uni_id);

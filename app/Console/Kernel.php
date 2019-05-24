@@ -4,6 +4,7 @@ namespace App\Console;
 
 use DB;
 use Log;
+use Redis;
 use Storage;
 use App\File;
 use Carbon\Carbon;
@@ -37,7 +38,8 @@ class Kernel extends ConsoleKernel
 //        $b = strtotime('18:00:00');
 //        if($b>time() && time()>$a)
         {
-            if(DB::table('queue_status')->where('id',1)->value('status') == 'processed')
+            $a  = Redis::connection('seq_db')->get('pool_status');
+            if(Redis::connection('seq_db')->get('pool_status')==0)
             {
                 $schedule->call(function () {
                     $download = Storage::disk('local')->files('Download_Pool');

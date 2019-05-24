@@ -2,11 +2,13 @@
 
 namespace App\Http\Requests;
 
+use Log;
+use App\Exceptions\ValidateException;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Contracts\Validation\Validator;
 
-class BulkDownloadRequest extends FormRequest
+class BulkUploadRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,13 +28,15 @@ class BulkDownloadRequest extends FormRequest
     public function rules()
     {
         $rules = [
-            'data' => 'required',
-            'data.*.uni_id' => 'exists:files,uni_id,deleted_at,NULL'
+            'data' => 'required|array',
+            'data.*.filename' => 'required',
+            'data.*.content' => 'required'
+            //'data.content' => array('required','regex:/^([A-Za-z0-9\+=\/])*$/')
         ];
         return $rules;
     }
-    public function failedValidation(Validator $validator)
-    {
+    public function failedValidation(Validator $validator) {
+
         $errors = $validator->failed();
         $keyname = key($errors);
 

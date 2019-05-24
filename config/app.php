@@ -165,6 +165,7 @@ return [
         Illuminate\View\ViewServiceProvider::class,
         Chumper\Zipper\ZipperServiceProvider::class,
         Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
+        Aws\Laravel\AwsServiceProvider::class,
 
         /*
          * Package Service Providers...
@@ -230,6 +231,7 @@ return [
         'Zipper' => Chumper\Zipper\Zipper::class,
         'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
         'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
+        'AWS' => Aws\Laravel\AwsFacade::class,
     ],
 
 ];

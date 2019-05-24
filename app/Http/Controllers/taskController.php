@@ -29,8 +29,6 @@ class taskController extends Controller
     /* Single Upload/Download  , Response with JSON */
     public function TestUpload(UploadRequest $request) // Upload v1 (api/TaskUpload call TestUpload)
     {
-//        $a = microtime();
-//        Log::info($a);
         Examiner::ServerBusy('Upload_Pool');
         $uni_id = uniqid();
         $servicename = $this->tokenRepository->GetServicebyToken($request->header('Api-Token'));
@@ -44,6 +42,7 @@ class taskController extends Controller
         $start = microtime(true);
         $job = (new UatUpload($uni_id,$filename,$servicename,$api_token,$content));
         app(Dispatcher::class)->dispatch($job);
+
 
         $timeout = Examiner::JobCheck($start,$uni_id,'Upload_Pool');
 

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use AWS;
 use Log;
+use Exception;
 use Storage;
 use GuzzleHttp\Client;
 use App\Jobs\UatUpload;
@@ -30,10 +32,15 @@ class PostApiController extends Controller
         $this->SeqRepository = $SeqRepository;
     }
     public function test(Request $request)
-    {
-        $SeqRepository = new SeqRepository();
-        return $SeqRepository->Generate_seq(2);
 
+    {   try {
+            $s3 = AWS::createClient('s3');
+            //$url = $s3->getObjectUrl(array('Bucket' => 'uat-ols-storage', 'Key' => '5cc12d3e9101c'));
+            $url = $s3->getObject(array('Bucket' => 'uat-ols-storage', 'Key' => '5cc12d3e9101c'));
+        } catch(Exception $e) {
+            return $e->getMessage();
+        }
+        echo $url['Body'] . "\n";
 //        $a = range(1, 100);
 //        //Storage::disk('local')->put('Upload_Pool/'.'123.txt','123');
 //        foreach($a as $i){
